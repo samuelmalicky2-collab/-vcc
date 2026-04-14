@@ -1,0 +1,2076 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Počítačové siete – DÚ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: #1e1e2e;
+      --accent: #00e5ff;
+      --accent2: #ff6b35;
+      --text: #e8e8f0;
+      --muted: #6b6b88;
+      --green: #39ff85;
+      --card: #15151f;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 3rem 2rem 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+      border-bottom: 1px solid var(--border);
+    }
+    .badge {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 2px 10px;
+      border-radius: 2px;
+      letter-spacing: 0.15em;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+    h1 span { color: var(--accent); }
+    .subtitle {
+      margin-top: 0.75rem;
+      color: var(--muted);
+      font-size: 1rem;
+      font-family: 'Space Mono', monospace;
+    }
+    nav {
+      position: relative;
+      z-index: 10;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+    }
+    nav a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      letter-spacing: 0.05em;
+    }
+    nav a:hover, nav a.active {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(0,229,255,0.05);
+    }
+    main {
+      position: relative;
+      z-index: 10;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .tema { display: none; animation: fadeIn 0.4s ease; }
+    .tema.visible { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .uloha {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+    .uloha-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      user-select: none;
+      transition: background 0.2s;
+    }
+    .uloha-header:hover { background: #1a1a28; }
+    .uloha-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent2);
+      background: rgba(255,107,53,0.1);
+      border: 1px solid rgba(255,107,53,0.3);
+      padding: 2px 10px;
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+    .uloha-title { flex: 1; font-weight: 600; font-size: 1rem; color: #fff; }
+    .uloha-toggle {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--muted);
+      transition: transform 0.3s;
+    }
+    .uloha.open .uloha-toggle { transform: rotate(180deg); }
+    .uloha-body {
+      padding: 0 1.5rem;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+    .uloha.open .uloha-body { max-height: 5000px; padding: 1.5rem; }
+    .otazka {
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .otazka:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .otazka-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--green);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.1em;
+    }
+    .otazka h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+    .otazka p, .otazka li { color: #c8c8de; font-size: 0.95rem; line-height: 1.8; }
+    .otazka ul, .otazka ol { padding-left: 1.5rem; margin-top: 0.5rem; }
+    .otazka li { margin-bottom: 0.4rem; }
+    .info-box {
+      background: rgba(0,229,255,0.04);
+      border-left: 3px solid var(--accent);
+      padding: 1rem 1.25rem;
+      border-radius: 0 6px 6px 0;
+      margin: 1rem 0;
+    }
+    .info-box p { color: var(--text); }
+    .kabel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    @media (max-width: 600px) { .kabel-grid { grid-template-columns: 1fr; } }
+    .kabel-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .kabel-card-title {
+      background: var(--surface);
+      padding: 0.6rem 1rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent2);
+      border-bottom: 1px solid var(--border);
+    }
+    .kabel-pins { padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 4px; }
+    .pin-row { display: flex; align-items: center; gap: 10px; font-family: 'Space Mono', monospace; font-size: 0.78rem; }
+    .pin-num { width: 20px; text-align: right; color: var(--muted); flex-shrink: 0; }
+    .pin-wire { display: inline-block; padding: 2px 10px; border-radius: 3px; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.03em; }
+    .w-bo { background:#ff8c00; color:#000; }
+    .w-o  { background:#ff6600; color:#fff; }
+    .w-bz { background:#27ae60; color:#fff; }
+    .w-z  { background:#1a7a40; color:#fff; }
+    .w-bm { background:#2980b9; color:#fff; }
+    .w-m  { background:#1a5fa0; color:#fff; }
+    .w-bh { background:#8b5cf6; color:#fff; }
+    .w-h  { background:#6d3fc4; color:#fff; }
+    .comp-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 1rem; }
+    .comp-table th {
+      background: var(--surface);
+      color: var(--accent);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      padding: 0.6rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .comp-table td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      color: #c8c8de;
+    }
+    .comp-table tr:last-child td { border-bottom: none; }
+    .comp-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .tag-plus  { color: var(--green); font-weight: 700; }
+    .tag-minus { color: #ff4d6a; font-weight: 700; }
+    footer {
+      position: relative;
+      z-index: 10;
+      max-width: 960px;
+      margin: 3rem auto 0;
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--border);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    @media (max-width: 640px) {
+      header, nav, main { padding-left: 1rem; padding-right: 1rem; }
+      h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">// Počítačové siete</div>
+  <h1>Domáce <span>Úlohy</span></h1>
+  <p class="subtitle">$ sieťové_technológie &mdash; INF / interaktívny_zborník</p>
+</header>
+
+<nav>
+  <a href="#" class="active" data-tema="1">Téma 1 — Základy sietí</a>
+  <a href="#" data-tema="2">Téma 2 — Káble a kabeláž</a>
+  <a href="#" data-tema="3">Téma 3 — Číselné sústavy &amp; IP</a>
+  <a href="#" data-tema="4">Téma 4 — Logické obvody</a>
+  <a href="#" data-tema="5">Téma 5 — Internet &amp; komunikácia</a>
+  <a href="#" data-tema="6">Téma 6 — Obraz &amp; grafika</a>
+  <a href="#" data-tema="7">Téma 7 — Monitory &amp; video</a>
+  <a href="#" data-tema="8">Téma 8 — Smerovanie</a>
+</nav>
+
+<main>
+
+  <!-- TEMA 1 -->
+  <section class="tema visible" id="tema-1">
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 1</span>
+        <span class="uloha-title">Definície a komponenty sietí</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 1a</div>
+          <h3>Definujte pojem počítačová sieť.</h3>
+          <div class="info-box">
+            <p><strong>Počítačová sieť</strong> je sústava dvoch alebo viacerých navzájom prepojených zariadení (počítačov, serverov, tlačiarní a iných periférií), ktoré dokážu medzi sebou komunikovať a zdieľať zdroje (dáta, hardvér, softvér) prostredníctvom prenosového média a komunikačných protokolov.</p>
+          </div>
+          <p>Základné účely počítačovej siete:</p>
+          <ul>
+            <li>Zdieľanie dát a súborov medzi zariadeniami</li>
+            <li>Zdieľanie hardvérových prostriedkov (tlačiarne, skenery, disky)</li>
+            <li>Komunikácia medzi používateľmi (e-mail, chat, VoIP)</li>
+            <li>Centralizovaná správa a zálohovanie dát</li>
+            <li>Prístup na internet a iné siete</li>
+          </ul>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 1b</div>
+          <h3>Definujte a vymenujte pasívne komponenty sietí.</h3>
+          <div class="info-box">
+            <p><strong>Pasívne komponenty</strong> sú zariadenia a materiály, ktoré <em>nepotrebujú napájanie</em> na svoju funkciu. Zabezpečujú fyzické prepojenie zariadení v sieti, ale aktívne nespracúvajú ani nezosilňujú signál.</p>
+          </div>
+          <p>Príklady pasívnych komponentov:</p>
+          <ul>
+            <li><strong>Káble</strong> — koaxiálny kábel, krútená dvojlinka (UTP/STP/FTP), optický kábel</li>
+            <li><strong>Konektory</strong> — RJ-45, BNC, LC/SC</li>
+            <li><strong>Zástrčky a zásuvky</strong> — dátové zásuvky v stenách</li>
+            <li><strong>Patch panely</strong> — pasívne rozvádzačové panely na ukončenie káblov</li>
+            <li><strong>Rozvádzače (racks)</strong> — kovové skrine na uloženie zariadení</li>
+            <li><strong>Chrániče káblov, žľaby, potrubia</strong> — mechanická ochrana vedenia</li>
+            <li><strong>Splice boxy (optika)</strong> — spojky optických káblov</li>
+          </ul>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 1c</div>
+          <h3>Definujte a vymenujte aktívne komponenty sietí.</h3>
+          <div class="info-box">
+            <p><strong>Aktívne komponenty</strong> sú zariadenia, ktoré <em>potrebujú napájanie</em> a aktívne spracúvajú, zosilňujú alebo smerujú sieťové signály a dáta.</p>
+          </div>
+          <p>Príklady aktívnych komponentov:</p>
+          <ul>
+            <li><strong>Sieťová karta (NIC)</strong> — rozhranie zariadenia pre pripojenie do siete</li>
+            <li><strong>Hub</strong> — zariadenie 1. vrstvy; rozsiela signál do všetkých portov</li>
+            <li><strong>Switch (prepínač)</strong> — zariadenie 2. vrstvy; smeruje rámce podľa MAC adries</li>
+            <li><strong>Router (smerovač)</strong> — zariadenie 3. vrstvy; smeruje pakety podľa IP adries</li>
+            <li><strong>Access Point (AP)</strong> — bezdrôtový prístupový bod pre WiFi</li>
+            <li><strong>Repeater (opakovač)</strong> — zosilňuje a regeneruje sieťový signál</li>
+            <li><strong>Modem</strong> — moduluje/demoduluje signál pre internet</li>
+            <li><strong>Firewall</strong> — hardvérové/softvérové zariadenie na filtrovanie prevádzky</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 1.2</span>
+        <span class="uloha-title">Priamy a krížený kábel — T568A &amp; T568B</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 1.2a</div>
+          <h3>Usporiadanie farieb žíl krútenej dvojlinky pre priamy a krížený kábel.</h3>
+          <p>Štandardné farby žíl UTP kábla (8 vodičov): <strong>BO, O, BZ, Z, BM, M, BH, H</strong></p>
+          <p style="margin-top:0.5rem;color:var(--muted);font-size:0.85rem">BZ = bielo-zelená &nbsp;|&nbsp; Z = zelená &nbsp;|&nbsp; BO = bielo-oranžová &nbsp;|&nbsp; O = oranžová &nbsp;|&nbsp; M = modrá &nbsp;|&nbsp; BM = bielo-modrá &nbsp;|&nbsp; BH = bielo-hnedá &nbsp;|&nbsp; H = hnedá</p>
+
+          <div class="kabel-grid">
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; T568A</div>
+              <div class="kabel-pins">
+                <div class="pin-row"><span class="pin-num">1</span><span class="pin-wire w-bz">BZ</span><span style="color:var(--muted);font-size:0.72rem">bielo-zelená</span></div>
+                <div class="pin-row"><span class="pin-num">2</span><span class="pin-wire w-z">Z</span><span style="color:var(--muted);font-size:0.72rem">zelená</span></div>
+                <div class="pin-row"><span class="pin-num">3</span><span class="pin-wire w-bo">BO</span><span style="color:var(--muted);font-size:0.72rem">bielo-oranžová</span></div>
+                <div class="pin-row"><span class="pin-num">4</span><span class="pin-wire w-m">M</span><span style="color:var(--muted);font-size:0.72rem">modrá</span></div>
+                <div class="pin-row"><span class="pin-num">5</span><span class="pin-wire w-bm">BM</span><span style="color:var(--muted);font-size:0.72rem">bielo-modrá</span></div>
+                <div class="pin-row"><span class="pin-num">6</span><span class="pin-wire w-o">O</span><span style="color:var(--muted);font-size:0.72rem">oranžová</span></div>
+                <div class="pin-row"><span class="pin-num">7</span><span class="pin-wire w-bh">BH</span><span style="color:var(--muted);font-size:0.72rem">bielo-hnedá</span></div>
+                <div class="pin-row"><span class="pin-num">8</span><span class="pin-wire w-h">H</span><span style="color:var(--muted);font-size:0.72rem">hnedá</span></div>
+              </div>
+            </div>
+
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; T568B</div>
+              <div class="kabel-pins">
+                <div class="pin-row"><span class="pin-num">1</span><span class="pin-wire w-bo">BO</span><span style="color:var(--muted);font-size:0.72rem">bielo-oranžová</span></div>
+                <div class="pin-row"><span class="pin-num">2</span><span class="pin-wire w-o">O</span><span style="color:var(--muted);font-size:0.72rem">oranžová</span></div>
+                <div class="pin-row"><span class="pin-num">3</span><span class="pin-wire w-bz">BZ</span><span style="color:var(--muted);font-size:0.72rem">bielo-zelená</span></div>
+                <div class="pin-row"><span class="pin-num">4</span><span class="pin-wire w-m">M</span><span style="color:var(--muted);font-size:0.72rem">modrá</span></div>
+                <div class="pin-row"><span class="pin-num">5</span><span class="pin-wire w-bm">BM</span><span style="color:var(--muted);font-size:0.72rem">bielo-modrá</span></div>
+                <div class="pin-row"><span class="pin-num">6</span><span class="pin-wire w-z">Z</span><span style="color:var(--muted);font-size:0.72rem">zelená</span></div>
+                <div class="pin-row"><span class="pin-num">7</span><span class="pin-wire w-bh">BH</span><span style="color:var(--muted);font-size:0.72rem">bielo-hnedá</span></div>
+                <div class="pin-row"><span class="pin-num">8</span><span class="pin-wire w-h">H</span><span style="color:var(--muted);font-size:0.72rem">hnedá</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:1.5rem">
+            <p><strong style="color:#fff">Priamy kábel (straight-through):</strong> Oba konce zakončené rovnakou normou — T568A–T568A alebo T568B–T568B. Používa sa na prepojenie zariadení rôzneho typu (PC ↔ switch).</p>
+            <p style="margin-top:0.75rem"><strong style="color:#fff">Krížený kábel (crossover):</strong> Jeden koniec T568A, druhý T568B. Piny 1↔3 a 2↔6 sú prehodené — prekríži vysielací a prijímací pár. Používa sa na priame prepojenie zariadení rovnakého typu (PC ↔ PC). Dnes ho nahrádza technológia Auto-MDI/MDIX.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- TEMA 2 -->
+  <section class="tema" id="tema-2">
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 2</span>
+        <span class="uloha-title">Kontrola TP kábla a štruktúrovaná kabeláž</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 2b</div>
+          <h3>Uveďte spôsob kontroly TP kábla pomocou meracieho prístroja.</h3>
+          <p>Na kontrolu krútenej dvojlinky (TP) sa používa <strong>káblový tester</strong> (napr. Fluke Networks, Klein Tools).</p>
+          <div class="info-box">
+            <p>Tester posiela elektrický signál cez každú žilu a overuje kontinuitu, správne zoradenie pínov a skraty.</p>
+          </div>
+          <ul>
+            <li><strong>Kontinuita (spojitosť)</strong> — overí, že každý vodič je neprerušený od konca ku koncu</li>
+            <li><strong>Správne zoradenie pínov (pin mapping)</strong> — kontroluje zapojenie žíl podľa T568A alebo T568B</li>
+            <li><strong>Skraty</strong> — odhaľuje nežiaduce spojenia medzi vodičmi</li>
+            <li><strong>Prehodenie párov (reversed pairs)</strong> — oba vodiče páru sú vymenené</li>
+            <li><strong>Rozdelenie párov (split pairs)</strong> — vodiče zapojené na správne piny, ale z rôznych párov</li>
+          </ul>
+          <p style="margin-top:0.75rem">Postup: Zakončiť kábel konektormi RJ-45 → zapojiť oba konce do testera (Master a Remote) → spustiť test → tester zobrazí stav každého páru LED indikátorom alebo na displeji.</p>
+          <p style="margin-top:0.5rem">Pokročilejšie prístroje (Fluke DTX) merajú aj <em>útlm (attenuation)</em>, <em>NEXT (Near-End Crosstalk)</em> a <em>dĺžku kábla</em>.</p>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 2c</div>
+          <h3>Popíšte a zdôvodnite význam štruktúrovanej kabeláže.</h3>
+          <div class="info-box">
+            <p><strong>Štruktúrovaná kabeláž</strong> je systematicky navrhnutá kabelážna infraštruktúra budovy alebo kampusu, navrhnutá podľa medzinárodných noriem (ISO/IEC 11801, TIA-568), nezávislá od konkrétnych aplikácií.</p>
+          </div>
+          <p>Prečo je dôležitá:</p>
+          <ul>
+            <li><strong>Flexibilita</strong> — jeden systém kabeláže podporuje rôzne aplikácie (dátové, hlasové, video)</li>
+            <li><strong>Jednoduchá správa</strong> — prepojenie zariadení sa rieši na patch paneli, bez kladenia nových káblov</li>
+            <li><strong>Spoľahlivosť a výkon</strong> — garantovaná kvalita podľa noriem (Cat5e, Cat6, Cat6A, Cat7)</li>
+            <li><strong>Škálovateľnosť</strong> — budúce rozšírenie nevyžaduje výmenu celej infraštruktúry</li>
+            <li><strong>Dlhá životnosť</strong> — kvalitná kabeláž vydrží 15–25 rokov</li>
+            <li><strong>Zníženie nákladov</strong> — unifikovaný systém znižuje náklady na údržbu</li>
+          </ul>
+          <p style="margin-top:0.75rem">Skladá sa z: horizontálnej kabeláže, vertikálnej chrbtovej kabeláže (Backbone), dátových rozvádzačov (TD, FD, BD, CD) a pracovných zásuviek.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 2.1</span>
+        <span class="uloha-title">Porovnanie typov káblov a ekonomická výhodnosť</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 2.1a</div>
+          <h3>Porovnajte výhody a nevýhody koaxiálnych káblov, krútenej dvojlinky a optických káblov.</h3>
+          <table class="comp-table">
+            <thead>
+              <tr>
+                <th>Typ kábla</th>
+                <th>Výhody</th>
+                <th>Nevýhody</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#fff">Koaxiálny kábel</strong></td>
+                <td>
+                  <span class="tag-plus">+</span> Odolnosť voči EMI<br>
+                  <span class="tag-plus">+</span> Vhodný pre TV/CATV<br>
+                  <span class="tag-plus">+</span> Relatívne lacný<br>
+                  <span class="tag-plus">+</span> Jednoduchá inštalácia
+                </td>
+                <td>
+                  <span class="tag-minus">−</span> Nízka rýchlosť vs. ostatné<br>
+                  <span class="tag-minus">−</span> Väčší priemer, ťažší<br>
+                  <span class="tag-minus">−</span> Obmedzená dĺžka segmentu<br>
+                  <span class="tag-minus">−</span> Zastaralý v LAN prostredí
+                </td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Krútená dvojlinka (TP)</strong></td>
+                <td>
+                  <span class="tag-plus">+</span> Nízka cena<br>
+                  <span class="tag-plus">+</span> Ľahká inštalácia a oprava<br>
+                  <span class="tag-plus">+</span> Štandardizovaná (RJ-45)<br>
+                  <span class="tag-plus">+</span> Dostupná (Cat5e–Cat8)
+                </td>
+                <td>
+                  <span class="tag-minus">−</span> Obmedzená vzdialenosť (100 m)<br>
+                  <span class="tag-minus">−</span> Náchylnosť na EMI (UTP)<br>
+                  <span class="tag-minus">−</span> Nižšia rýchlosť ako optika
+                </td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Optický kábel</strong></td>
+                <td>
+                  <span class="tag-plus">+</span> Extrémne vysoká rýchlosť (Tb/s)<br>
+                  <span class="tag-plus">+</span> Imúnny voči EMI<br>
+                  <span class="tag-plus">+</span> Veľké vzdialenosti (km)<br>
+                  <span class="tag-plus">+</span> Bezpečný, ťažko odpočúvateľný<br>
+                  <span class="tag-plus">+</span> Malý útlm signálu
+                </td>
+                <td>
+                  <span class="tag-minus">−</span> Vyššia cena<br>
+                  <span class="tag-minus">−</span> Náročnejšia inštalácia<br>
+                  <span class="tag-minus">−</span> Krehké vlákno<br>
+                  <span class="tag-minus">−</span> Drahšie aktívne zariadenia (SFP)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 2.1b</div>
+          <h3>Porovnajte ekonomickú výhodnosť rôznych typov internetového pripojenia.</h3>
+          <table class="comp-table">
+            <thead>
+              <tr>
+                <th>Typ pripojenia</th>
+                <th>Rýchlosť</th>
+                <th>Cena/mes.</th>
+                <th>Poznámka</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#fff">Telefónna linka (DSL/ADSL)</strong></td>
+                <td>1–100 Mb/s</td>
+                <td>&#127802; Nízka</td>
+                <td>Závisí od vzdialenosti od ústredne; asymetrické; zastarávajúca technológia</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Koaxiálny kábel (CATV/HFC)</strong></td>
+                <td>50–1000 Mb/s</td>
+                <td>&#127803; Stredná</td>
+                <td>Zdieľaný kanál v okolí; download >> upload; bežne u kábloviek</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Krútená dvojlinka (Ethernet)</strong></td>
+                <td>100 Mb/s – 1 Gb/s</td>
+                <td>&#127803; Stredná</td>
+                <td>Stabilné, symetrické; bežná podniková aj domácnosť sieť</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Optický kábel (FTTH)</strong></td>
+                <td>100 Mb/s – 10 Gb/s</td>
+                <td>&#127800; Stredná–Vyššia</td>
+                <td>Najvyšší výkon, symetrické rýchlosti; najlepšia voľba ak je dostupná</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">WiFi (bezdrôtové)</strong></td>
+                <td>10 Mb/s – 1 Gb/s+</td>
+                <td>&#127803; Variabilná</td>
+                <td>Mobilita; závisí od pokrytia; rušenie; vyššia latencia; lacnejšia inštalácia</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="info-box" style="margin-top:1.25rem">
+            <p><strong>Záver:</strong> Z hľadiska pomeru cena/výkon je najvýhodnejšie pripojenie cez <strong>FTTH (optiku)</strong>, ak je dostupné. Pre domácnosti bez optiky je dobrá voľba koaxiálny kábel (káblovka) alebo VDSL2. WiFi je výhodné tam, kde nie je možná drôtová inštalácia.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- TEMA 3 -->
+  <section class="tema" id="tema-3">
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 3</span>
+        <span class="uloha-title">Číselné sústavy a adresovanie počítača</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 3a</div>
+          <h3>Definujte dvojkovú, desiatkovú a hexadecimálnu číselnú sústavu.</h3>
+
+          <div class="info-box">
+            <p><strong>Číselná sústava</strong> určuje spôsob zápisu čísel pomocou obmedzeného počtu symbolov (číslic) a základ, ktorý hovorí, koľko rôznych hodnôt môže jedna pozícia nadobudnúť.</p>
+          </div>
+
+          <table class="comp-table" style="margin-bottom:1.25rem">
+            <thead>
+              <tr>
+                <th>Sústava</th>
+                <th>Základ</th>
+                <th>Číslice</th>
+                <th>Príklad</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#fff">Dvojková (binárna)</strong></td>
+                <td style="font-family:'Space Mono',monospace;color:var(--accent)">2</td>
+                <td>0, 1</td>
+                <td style="font-family:'Space Mono',monospace">1010<sub>2</sub> = 10<sub>10</sub></td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Desiatková (decimálna)</strong></td>
+                <td style="font-family:'Space Mono',monospace;color:var(--accent)">10</td>
+                <td>0 – 9</td>
+                <td style="font-family:'Space Mono',monospace">255<sub>10</sub></td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Hexadecimálna</strong></td>
+                <td style="font-family:'Space Mono',monospace;color:var(--accent)">16</td>
+                <td>0–9, A–F</td>
+                <td style="font-family:'Space Mono',monospace">FF<sub>16</sub> = 255<sub>10</sub></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p><strong style="color:#fff">Dvojková sústava:</strong> Základ 2 — každá pozícia (bit) môže mať hodnotu 0 alebo 1. Hodnota čísla sa vypočíta ako súčet mocnín dvojky. Napr. 1011₂ = 1·2³ + 0·2² + 1·2¹ + 1·2⁰ = 8+0+2+1 = <strong>11</strong>.</p>
+          <p style="margin-top:0.75rem"><strong style="color:#fff">Desiatková sústava:</strong> Základ 10 — bežná číselná sústava, ktorú používame v každodennom živote. Každá pozícia je mocninou čísla 10 (jednotky, desiatky, stovky...).</p>
+          <p style="margin-top:0.75rem"><strong style="color:#fff">Hexadecimálna sústava:</strong> Základ 16 — okrem číslic 0–9 sa používajú písmená A(10), B(11), C(12), D(13), E(14), F(15). Jeden hexadecimálny znak zastupuje presne 4 bity (nibble), čo ju robí kompaktným zápisom binárnych hodnôt. Napr. FF₁₆ = 1111 1111₂ = 255₁₀.</p>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 3b</div>
+          <h3>Vysvetlite význam použitia dvojkovej sústavy v číslicových zariadeniach.</h3>
+          <div class="info-box">
+            <p>Digitálne zariadenia (počítače, procesory, pamäte) pracujú s elektrickými signálmi, ktoré môžu mať len <strong>dve stavy</strong>: napätie je prítomné (1) alebo nie je (0). Dvojková sústava je preto prirodzenou voľbou pre reprezentáciu dát v elektronike.</p>
+          </div>
+          <p>Dôvody použitia dvojkovej sústavy:</p>
+          <ul>
+            <li><strong>Fyzická realizovateľnosť</strong> — tranzistory v obvode môžu byť len zapnuté (1) alebo vypnuté (0); stačia 2 stavy namiesto 10</li>
+            <li><strong>Odolnosť voči šumu</strong> — pri dvoch stavoch je oveľa jednoduchšie rozlíšiť 0 od 1 aj pri rušení signálu</li>
+            <li><strong>Jednoduchá logika</strong> — logické operácie (AND, OR, NOT) sa priamo realizujú hradlami (gates) v obvode</li>
+            <li><strong>Aritmetika</strong> — sčítanie, odčítanie, násobenie sú jednoduché binárne operácie implementovateľné v hardware</li>
+            <li><strong>Spoľahlivosť a rýchlosť</strong> — menej stavov = menej chýb a vyššia rýchlosť spracovania</li>
+          </ul>
+          <p style="margin-top:0.75rem">Každý znak, obrázok, video alebo zvuk v počítači je uložený ako postupnosť núl a jedničiek — <strong>bitov</strong>. 8 bitov = 1 byte, čo môže uložiť čísla 0–255.</p>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 3c</div>
+          <h3>Vysvetlite rozdiel medzi fyzickou a logickou adresou počítača.</h3>
+
+          <div class="kabel-grid">
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; Fyzická adresa (MAC)</div>
+              <div style="padding:1rem;font-size:0.88rem;color:#c8c8de;line-height:1.7">
+                <p>Hardvérová adresa priradená <strong>výrobcom</strong> sieťovej karty (NIC). Je zapísaná priamo do čipu a (bežne) sa nemení.</p>
+                <br>
+                <p style="font-family:'Space Mono',monospace;color:var(--accent);font-size:0.8rem">Formát: AA:BB:CC:DD:EE:FF<br>(48 bitov = 6 bajtov v hex)</p>
+                <br>
+                <ul style="padding-left:1.2rem;margin-top:0.5rem">
+                  <li>Funguje na 2. vrstve OSI (Data Link)</li>
+                  <li>Jedinečná pre každé zariadenie na svete</li>
+                  <li>Slúži na komunikáciu v rámci lokálnej siete (LAN)</li>
+                  <li>Prvé 3 bajty = OUI (výrobca), ďalšie 3 = sériové číslo</li>
+                </ul>
+              </div>
+            </div>
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; Logická adresa (IP)</div>
+              <div style="padding:1rem;font-size:0.88rem;color:#c8c8de;line-height:1.7">
+                <p>Softvérová adresa priradená <strong>administrátorom</strong> alebo automaticky (DHCP). Môže sa meniť.</p>
+                <br>
+                <p style="font-family:'Space Mono',monospace;color:var(--accent);font-size:0.8rem">Formát IPv4: 192.168.1.10<br>(32 bitov = 4 oktety v dec.)</p>
+                <br>
+                <ul style="padding-left:1.2rem;margin-top:0.5rem">
+                  <li>Funguje na 3. vrstve OSI (Network)</li>
+                  <li>Umožňuje smerovanie medzi sieťami (internet)</li>
+                  <li>Delí sa na časť siete a časť zariadenia</li>
+                  <li>Preklad IP ↔ MAC zabezpečuje protokol ARP</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-box" style="margin-top:1.25rem">
+            <p><strong>Analógia:</strong> MAC adresa je ako <em>rodné číslo</em> — trvalá a jedinečná. IP adresa je ako <em>poštová adresa</em> — môže sa zmeniť, keď sa zariadenie presunie do inej siete.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ULOHA 3.1 -->
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 3.1</span>
+        <span class="uloha-title">Triedy IP adries A, B, C</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 3.1a</div>
+          <h3>Rozdeľte IP adresy do tried A, B, C a vysvetlite logiku delenia.</h3>
+
+          <div class="info-box">
+            <p>IPv4 adresy (32-bitové) boli historicky rozdelené do tried podľa hodnoty <strong>prvého oktetu</strong>. Trieda určuje, koľko bitov patrí časti siete (Network ID) a koľko časti zariadenia (Host ID).</p>
+          </div>
+
+          <table class="comp-table">
+            <thead>
+              <tr>
+                <th>Trieda</th>
+                <th>Rozsah 1. oktetu</th>
+                <th>Začiatok (bity)</th>
+                <th>Sieť / Host bity</th>
+                <th>Počet sietí</th>
+                <th>Hostiteľov/sieť</th>
+                <th>Použitie</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:var(--accent);font-size:1.1rem">A</strong></td>
+                <td style="font-family:'Space Mono',monospace">1 – 126</td>
+                <td style="font-family:'Space Mono',monospace;color:var(--green)">0xxxxxxx</td>
+                <td>8 / 24</td>
+                <td>126</td>
+                <td>16 777 214</td>
+                <td>Veľké siete (ISP, vlády)</td>
+              </tr>
+              <tr>
+                <td><strong style="color:var(--accent);font-size:1.1rem">B</strong></td>
+                <td style="font-family:'Space Mono',monospace">128 – 191</td>
+                <td style="font-family:'Space Mono',monospace;color:var(--green)">10xxxxxx</td>
+                <td>16 / 16</td>
+                <td>16 384</td>
+                <td>65 534</td>
+                <td>Stredné siete (univerzity, firmy)</td>
+              </tr>
+              <tr>
+                <td><strong style="color:var(--accent);font-size:1.1rem">C</strong></td>
+                <td style="font-family:'Space Mono',monospace">192 – 223</td>
+                <td style="font-family:'Space Mono',monospace;color:var(--green)">110xxxxx</td>
+                <td>24 / 8</td>
+                <td>2 097 152</td>
+                <td>254</td>
+                <td>Malé siete (domácnosti, pobočky)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p style="margin-top:1.25rem"><strong style="color:#fff">Logika delenia:</strong> Trieda je určená hodnotou <em>prvých bitov</em> prvého oktetu:</p>
+          <ul>
+            <li>Trieda <strong>A</strong> — začína bitom <code style="background:rgba(0,229,255,0.1);padding:1px 6px;border-radius:3px;font-family:'Space Mono',monospace;color:var(--accent)">0</code> → prvý oktet 0–127 (127 je rezervovaný pre loopback)</li>
+            <li>Trieda <strong>B</strong> — začína bitmi <code style="background:rgba(0,229,255,0.1);padding:1px 6px;border-radius:3px;font-family:'Space Mono',monospace;color:var(--accent)">10</code> → prvý oktet 128–191</li>
+            <li>Trieda <strong>C</strong> — začína bitmi <code style="background:rgba(0,229,255,0.1);padding:1px 6px;border-radius:3px;font-family:'Space Mono',monospace;color:var(--accent)">110</code> → prvý oktet 192–223</li>
+          </ul>
+
+          <p style="margin-top:1rem"><strong style="color:#fff">Príklady IP adries:</strong></p>
+          <ul>
+            <li><code style="font-family:'Space Mono',monospace;color:var(--green)">10.0.0.1</code> — trieda A (prvý oktet 10)</li>
+            <li><code style="font-family:'Space Mono',monospace;color:var(--green)">172.16.0.1</code> — trieda B (prvý oktet 172)</li>
+            <li><code style="font-family:'Space Mono',monospace;color:var(--green)">192.168.1.1</code> — trieda C (prvý oktet 192) — najbežnejšia domáca sieť</li>
+          </ul>
+
+          <div class="info-box" style="margin-top:1.25rem">
+            <p><strong>Poznámka:</strong> Triedy D (224–239, multicast) a E (240–255, rezervované) sa v bežných sieťach nepoužívajú. Dnes sa namiesto classful delenia používa <strong>CIDR</strong> (napr. 192.168.1.0/24), ktorý je flexibilnejší.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ═══════════════════ TÉMA 4 ═══════════════════ -->
+  <section class="tema" id="tema-4">
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 4</span>
+        <span class="uloha-title">Booleova algebra, logické funkcie a hradlá</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 4a</div>
+          <h3>Definujte Boolovu algebru a vymenujte základné logické funkcie.</h3>
+          <div class="info-box">
+            <p><strong>Booleova algebra</strong> je matematická sústava pracujúca s hodnotami <strong>0</strong> (nepravda/false) a <strong>1</strong> (pravda/true). Definuje pravidlá pre logické operácie nad binárными premennými. Pomenovaná po matematikovi Georgovi Boolovi (1854).</p>
+          </div>
+          <p>Základné logické funkcie (operácie):</p>
+          <ul>
+            <li><strong>AND (Konjunkcia, ·)</strong> — výstup je 1 iba ak sú VŠETKY vstupy 1</li>
+            <li><strong>OR (Disjunkcia, +)</strong> — výstup je 1 ak je aspoň JEDEN vstup 1</li>
+            <li><strong>NOT (Negácia, ̄)</strong> — invertuje vstup; z 0 urobí 1 a naopak</li>
+            <li><strong>NAND</strong> — negácia AND; výstup je 0 iba ak sú všetky vstupy 1</li>
+            <li><strong>NOR</strong> — negácia OR; výstup je 1 iba ak sú všetky vstupy 0</li>
+            <li><strong>XOR (Exkluzívne OR, ⊕)</strong> — výstup je 1 ak sú vstupy rôzne</li>
+            <li><strong>XNOR</strong> — negácia XOR; výstup je 1 ak sú vstupy rovnaké</li>
+          </ul>
+          <p style="margin-top:0.75rem">Základné zákony Boolovej algebry: komutativita, asociativita, distributivita, De Morganove zákony: <code style="font-family:'Space Mono',monospace;background:rgba(0,229,255,0.1);padding:2px 6px;border-radius:3px;color:var(--accent)">NOT(A·B) = NOT A + NOT B</code></p>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 4b</div>
+          <h3>Definujte pojem kombinačný a sekvenčný logický obvod.</h3>
+          <div class="kabel-grid">
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; Kombinačný obvod</div>
+              <div style="padding:1rem;font-size:0.88rem;color:#c8c8de;line-height:1.7">
+                <p>Obvod, kde výstup závisí <strong>iba od aktuálnych vstupov</strong>. Nemá pamäť — pri rovnakých vstupoch je vždy rovnaký výstup.</p>
+                <br>
+                <p><strong>Príklady:</strong> sčítačka (adder), multiplexor, demultiplexor, dekodér, enkodér, komparátor</p>
+              </div>
+            </div>
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; Sekvenčný obvod</div>
+              <div style="padding:1rem;font-size:0.88rem;color:#c8c8de;line-height:1.7">
+                <p>Obvod, kde výstup závisí od <strong>aktuálnych vstupov aj predchádzajúceho stavu</strong> (má pamäť). Obsahuje spätnoväzbové prvky.</p>
+                <br>
+                <p><strong>Príklady:</strong> klopné obvody (RS, JK, D, T), registre, čítače, pamäti RAM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 4c</div>
+          <h3>Schematické značky základných logických hradiel.</h3>
+          <div style="overflow-x:auto;margin-top:0.5rem">
+            <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px">
+              <style>
+                .gl { font-family: 'Space Mono', monospace; font-size: 11px; fill: #6b6b88; }
+                .gn { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; fill: #00e5ff; }
+                .gw { stroke: #00e5ff; stroke-width: 2; fill: none; }
+                .gline { stroke: #39ff85; stroke-width: 1.5; fill: none; }
+                .gbody { fill: #15151f; stroke: #00e5ff; stroke-width: 2; }
+                .gneg { fill: #0a0a0f; stroke: #00e5ff; stroke-width: 2; }
+              </style>
+              <!-- AND -->
+              <g transform="translate(20,20)">
+                <text x="40" y="12" class="gn">AND</text>
+                <line x1="0" y1="40" x2="20" y2="40" class="gline"/>
+                <line x1="0" y1="60" x2="20" y2="60" class="gline"/>
+                <rect x="20" y="30" width="30" height="40" rx="2" class="gbody"/>
+                <path d="M50,30 Q75,30 75,50 Q75,70 50,70" class="gbody"/>
+                <line x1="75" y1="50" x2="95" y2="50" class="gline"/>
+                <text x="30" y="55" class="gl">&amp;</text>
+              </g>
+              <!-- OR -->
+              <g transform="translate(130,20)">
+                <text x="40" y="12" class="gn">OR</text>
+                <line x1="0" y1="40" x2="22" y2="40" class="gline"/>
+                <line x1="0" y1="60" x2="22" y2="60" class="gline"/>
+                <path d="M20,30 Q35,30 55,50 Q35,70 20,70 Q30,50 20,30Z" class="gbody"/>
+                <line x1="55" y1="50" x2="95" y2="50" class="gline"/>
+                <text x="28" y="55" class="gl">≥1</text>
+              </g>
+              <!-- NOT -->
+              <g transform="translate(240,20)">
+                <text x="33" y="12" class="gn">NOT</text>
+                <line x1="0" y1="50" x2="20" y2="50" class="gline"/>
+                <polygon points="20,30 60,50 20,70" class="gbody"/>
+                <circle cx="64" cy="50" r="4" class="gneg"/>
+                <line x1="68" y1="50" x2="95" y2="50" class="gline"/>
+                <text x="26" y="55" class="gl">1</text>
+              </g>
+              <!-- NAND -->
+              <g transform="translate(20,140)">
+                <text x="35" y="12" class="gn">NAND</text>
+                <line x1="0" y1="40" x2="20" y2="40" class="gline"/>
+                <line x1="0" y1="60" x2="20" y2="60" class="gline"/>
+                <rect x="20" y="30" width="30" height="40" rx="2" class="gbody"/>
+                <path d="M50,30 Q75,30 75,50 Q75,70 50,70" class="gbody"/>
+                <circle cx="79" cy="50" r="4" class="gneg"/>
+                <line x1="83" y1="50" x2="95" y2="50" class="gline"/>
+                <text x="28" y="55" class="gl">&amp;</text>
+              </g>
+              <!-- NOR -->
+              <g transform="translate(130,140)">
+                <text x="37" y="12" class="gn">NOR</text>
+                <line x1="0" y1="40" x2="22" y2="40" class="gline"/>
+                <line x1="0" y1="60" x2="22" y2="60" class="gline"/>
+                <path d="M20,30 Q35,30 55,50 Q35,70 20,70 Q30,50 20,30Z" class="gbody"/>
+                <circle cx="59" cy="50" r="4" class="gneg"/>
+                <line x1="63" y1="50" x2="95" y2="50" class="gline"/>
+                <text x="28" y="55" class="gl">≥1</text>
+              </g>
+              <!-- XOR -->
+              <g transform="translate(240,140)">
+                <text x="37" y="12" class="gn">XOR</text>
+                <line x1="0" y1="40" x2="22" y2="40" class="gline"/>
+                <line x1="0" y1="60" x2="22" y2="60" class="gline"/>
+                <path d="M20,30 Q35,30 55,50 Q35,70 20,70 Q30,50 20,30Z" class="gbody"/>
+                <path d="M15,30 Q25,50 15,70" style="stroke:#00e5ff;stroke-width:2;fill:none"/>
+                <line x1="55" y1="50" x2="95" y2="50" class="gline"/>
+                <text x="28" y="55" class="gl">=1</text>
+              </g>
+              <!-- legend -->
+              <text x="370" y="45" style="font-family:'Space Mono',monospace;font-size:10px;fill:#6b6b88">Vstupy → ─── hradlo ─── → Výstup</text>
+              <text x="370" y="62" style="font-family:'Space Mono',monospace;font-size:10px;fill:#6b6b88">Krúžok ○ = negácia výstupu</text>
+              <text x="370" y="79" style="font-family:'Space Mono',monospace;font-size:10px;fill:#6b6b88">Značky podľa normy IEC 60617</text>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 4.1</span>
+        <span class="uloha-title">Pravdivostné tabuľky, realizácia hradiel, prevody čísel</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 4.1a</div>
+          <h3>Pravdivostné tabuľky základných logických funkcií.</h3>
+          <div style="overflow-x:auto">
+            <table class="comp-table" style="min-width:500px">
+              <thead>
+                <tr>
+                  <th>A</th><th>B</th>
+                  <th>AND (A·B)</th><th>OR (A+B)</th><th>NOT A</th>
+                  <th>NAND</th><th>NOR</th><th>XOR (A⊕B)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:#ff4d6a">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:#ff4d6a">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--green)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--green)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--green)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:#ff4d6a">0</td>
+                </tr>
+                <tr>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:#ff4d6a">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--green)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--green)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--green)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:#ff4d6a">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--green)">1</td>
+                </tr>
+                <tr>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:#ff4d6a">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--green)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:#ff4d6a">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--green)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:#ff4d6a">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--green)">1</td>
+                </tr>
+                <tr>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--green)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:var(--green)">1</td>
+                  <td style="font-family:'Space Mono',monospace;color:#ff4d6a">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:#ff4d6a">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:#ff4d6a">0</td>
+                  <td style="font-family:'Space Mono',monospace;color:#ff4d6a">0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 4.1b</div>
+          <h3>Vysvetlite princíp realizácie základných logických členov.</h3>
+          <div class="info-box">
+            <p>Logické hradlá sú fyzicky realizované pomocou <strong>tranzistorov</strong> (MOSFET, BJT), ktoré fungujú ako elektronické spínače ovládané napätím.</p>
+          </div>
+          <ul>
+            <li><strong>NOT (invertor)</strong> — jeden tranzistor zapojený tak, že keď je vstup HIGH (1), tranzistor je otvorený a výstup je pripojený na GND (0), a naopak</li>
+            <li><strong>NAND</strong> — dva tranzistory v sérii; oba musia byť otvorené (vstupy = 1,1) aby výstup klesol na 0. NAND je univerzálne hradlo — z neho sa dá zostaviť akákoľvek iná funkcia</li>
+            <li><strong>NOR</strong> — dva tranzistory paralelne; stačí jeden otvorený (vstup = 1) na zníženie výstupu na 0. Aj NOR je univerzálne hradlo</li>
+            <li><strong>AND, OR</strong> — realizujú sa kombináciou NAND/NOR s invertorom</li>
+            <li><strong>Technológia CMOS</strong> — moderné hradlá používajú dvojicu komplementárnych MOSFET tranzistorov (P-MOS + N-MOS), čo minimalizuje spotrebu energie</li>
+          </ul>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 4.1c</div>
+          <h3>Prevod čísel medzi sústavaami.</h3>
+          <p><strong>(10101110)₂ → desiatková sústava:</strong></p>
+          <div class="info-box" style="margin:0.75rem 0">
+            <p style="font-family:'Space Mono',monospace;font-size:0.85rem;line-height:2">
+              1·2⁷ + 0·2⁶ + 1·2⁵ + 0·2⁴ + 1·2³ + 1·2² + 1·2¹ + 0·2⁰<br>
+              = 128 + 0 + 32 + 0 + 8 + 4 + 2 + 0<br>
+              = <strong style="color:var(--green);font-size:1.1rem">(174)₁₀</strong>
+            </p>
+          </div>
+          <p style="margin-top:1rem"><strong>(142)₁₀ → hexadecimálna sústava:</strong></p>
+          <div class="info-box" style="margin:0.75rem 0">
+            <p style="font-family:'Space Mono',monospace;font-size:0.85rem;line-height:2">
+              142 ÷ 16 = 8, zvyšok <strong style="color:var(--accent)">14 = E</strong><br>
+              8 ÷ 16 = 0, zvyšok <strong style="color:var(--accent)">8</strong><br>
+              Čítame zdola nahor: <strong style="color:var(--green);font-size:1.1rem">(8E)₁₆</strong>
+            </p>
+          </div>
+          <p style="color:var(--muted);font-size:0.85rem">Overenie: 8·16 + 14 = 128 + 14 = 142 ✓</p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 4.2</span>
+        <span class="uloha-title">Pamäťové obvody, dekodér BCD, využitie logických obvodov</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 4.2a</div>
+          <h3>Pamäťové logické členy — klopné obvody.</h3>
+          <div class="info-box">
+            <p><strong>Klopné obvody (flip-flopy)</strong> sú základné sekvenčné prvky s pamäťou. Uchovávajú jeden bit informácie a menia stav na základe vstupov a hodinového signálu (CLK).</p>
+          </div>
+          <table class="comp-table">
+            <thead>
+              <tr><th>Typ</th><th>Vstupy</th><th>Popis činnosti</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#fff">RS (Set-Reset)</strong></td>
+                <td style="font-family:'Space Mono',monospace">S, R</td>
+                <td>S=1 nastaví výstup Q=1; R=1 resetuje Q=0; S=R=1 je zakázaný stav</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">JK</strong></td>
+                <td style="font-family:'Space Mono',monospace">J, K, CLK</td>
+                <td>Vylepšený RS — J=K=1 prehodí výstup (toggle). Nemá zakázaný stav. Najuniverzálnejší flip-flop</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">T (Toggle)</strong></td>
+                <td style="font-family:'Space Mono',monospace">T, CLK</td>
+                <td>T=1: výstup sa prehodí pri každom hodinovom pulze. T=0: stav sa nemení. Základ čítačov</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">D (Data/Delay)</strong></td>
+                <td style="font-family:'Space Mono',monospace">D, CLK</td>
+                <td>Na výstup Q sa prenesie hodnota vstupu D pri hodinovom pulze. Základ registrov a pamätí</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 4.2b</div>
+          <h3>Popíšte dekodér BCD.</h3>
+          <div class="info-box">
+            <p><strong>BCD (Binary Coded Decimal)</strong> dekodér je kombinačný obvod, ktorý prevedie 4-bitový binárny vstup (0000–1001, teda hodnoty 0–9) na zodpovedajúci výstup pre zobrazenie na <strong>7-segmentovom displeji</strong>.</p>
+          </div>
+          <ul>
+            <li><strong>Vstupy:</strong> 4 bity (A, B, C, D) — kódujú číslo 0–9 v binárnom kóde</li>
+            <li><strong>Výstupy:</strong> 7 signálov (a–g) — každý ovláda jeden segment displeja</li>
+            <li>Každý výstupný signál je realizovaný logickou funkciou vstupných bitov</li>
+            <li>Hodnoty 1010–1111 (10–15) sú pre BCD nedefinované (nepoužívajú sa)</li>
+            <li>Príklad: vstup 0111₂ (=7) → rozsvietia sa segmenty a, b, c → zobrazí sa "7"</li>
+          </ul>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 4.2c</div>
+          <h3>Príklady využitia logických obvodov.</h3>
+          <ul>
+            <li><strong>Procesory (CPU)</strong> — aritmeticko-logická jednotka (ALU) je tvorená miliardami hradiel</li>
+            <li><strong>Pamäte RAM/ROM</strong> — zostavené z klopných obvodov (SRAM) alebo kondenzátorov (DRAM)</li>
+            <li><strong>Čítače a časovače</strong> — v mikrokontroléroch, hodinách, frekvenčných meračoch</li>
+            <li><strong>Multiplexory/Demultiplexory</strong> — výber dátových ciest v komunikácii</li>
+            <li><strong>Kalkulačky a displeje</strong> — BCD dekodéry pre 7-segmentové displeje</li>
+            <li><strong>Riadiace automaty</strong> — PLC systémy v priemyselnej automatizácii</li>
+            <li><strong>FPGA</strong> — programovateľné polia logických hradiel pre vlastné obvody</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ TÉMA 5 ═══════════════════ -->
+  <section class="tema" id="tema-5">
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 5</span>
+        <span class="uloha-title">Komunikácia, internet a základné pojmy</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 5a</div>
+          <h3>Definujte pojmy komunikácia, interaktívna a neinteraktívna komunikácia.</h3>
+          <div class="info-box">
+            <p><strong>Komunikácia</strong> je proces výmeny informácií medzi dvoma alebo viacerými stranami prostredníctvom dohodnutého jazyka, média a protokolu.</p>
+          </div>
+          <p style="margin-top:0.75rem"><strong style="color:#fff">Interaktívna komunikácia</strong> — obojsmerná, prebieha v reálnom čase. Obe strany môžu okamžite reagovať.</p>
+          <ul>
+            <li>Telefonický hovor, videokonferencia (Zoom, Teams)</li>
+            <li>Chat (Messenger, WhatsApp), online hry</li>
+            <li>Webové stránky s formulármi, chatboty</li>
+          </ul>
+          <p style="margin-top:0.75rem"><strong style="color:#fff">Neinteraktívna komunikácia</strong> — jednosmerná alebo odložená. Príjemca nemôže okamžite odpovedať.</p>
+          <ul>
+            <li>E-mail, SMS, list</li>
+            <li>Televízia, rozhlas, podcast</li>
+            <li>Webové stránky (čítanie bez interakcie)</li>
+          </ul>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 5b</div>
+          <h3>Definujte ISP, IP adresa, URL, doménová adresa, DNS.</h3>
+          <table class="comp-table">
+            <thead><tr><th>Pojem</th><th>Definícia</th><th>Príklad</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#fff">ISP</strong></td>
+                <td>Internet Service Provider — poskytovateľ internetového pripojenia. Firma, ktorá zabezpečuje prístup na internet pre domácnosti a firmy.</td>
+                <td>Slovak Telekom, Orange, UPC</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">IP adresa</strong></td>
+                <td>Číselná adresa zariadenia v sieti (Internet Protocol). Jednoznačne identifikuje zariadenie pre účely smerovania paketov.</td>
+                <td style="font-family:'Space Mono',monospace;color:var(--accent)">192.168.1.1<br>IPv6: ::1</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">URL</strong></td>
+                <td>Uniform Resource Locator — úplná adresa zdroja na internete. Obsahuje protokol, doménu, cestu a prípadne parametre.</td>
+                <td style="font-family:'Space Mono',monospace;color:var(--accent)">https://google.com/search?q=siete</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Doménová adresa</strong></td>
+                <td>Čitateľný názov servera namiesto IP adresy. Hierarchická štruktúra: subdoména.doména.TLD</td>
+                <td style="font-family:'Space Mono',monospace;color:var(--accent)">www.spslevoca.sk</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">DNS</strong></td>
+                <td>Domain Name System — systém, ktorý prekladá doménové adresy na IP adresy (a naopak). Funguje ako "telefónny zoznam" internetu.</td>
+                <td>google.com → 142.250.185.46</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 5c</div>
+          <h3>Definujte pojmy HTTP, HTML, internetový prehliadač.</h3>
+          <ul>
+            <li><strong>HTTP (HyperText Transfer Protocol)</strong> — komunikačný protokol pre prenos webových stránok medzi serverom a klientom (prehliadačom). HTTPS = šifrovaná verzia pomocou TLS/SSL. Štandardný port: 80 (HTTP), 443 (HTTPS).</li>
+            <li style="margin-top:0.5rem"><strong>HTML (HyperText Markup Language)</strong> — značkovací jazyk pre tvorbu webových stránok. Definuje štruktúru a obsah stránky pomocou tagov (napr. &lt;h1&gt;, &lt;p&gt;, &lt;a&gt;). Prehliadač interpretuje HTML a zobrazí vizuálnu stránku.</li>
+            <li style="margin-top:0.5rem"><strong>Internetový prehliadač (browser)</strong> — softvérová aplikácia, ktorá stiahne HTML, CSS a JavaScript zo servera, interpretuje ich a zobrazí stránku používateľovi. Príklady: Chrome, Firefox, Edge, Safari.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 5.1</span>
+        <span class="uloha-title">Možnosti pripojenia na internet a netiketa</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 5.1a</div>
+          <h3>Popíšte a porovnajte možnosti pripojenia na Internet.</h3>
+          <table class="comp-table">
+            <thead><tr><th>Typ</th><th>Technológia</th><th>Rýchlosť</th><th>Výhody / Nevýhody</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#fff">DSL / ADSL</strong></td>
+                <td>Telefónna linka</td>
+                <td>1–100 Mb/s</td>
+                <td><span class="tag-plus">+</span> Rozšírená infraštruktúra &nbsp;<span class="tag-minus">−</span> Závisí od vzdialenosti od ústredne</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Káblové (HFC)</strong></td>
+                <td>Koaxiálny kábel</td>
+                <td>50–1000 Mb/s</td>
+                <td><span class="tag-plus">+</span> Vysoké rýchlosti &nbsp;<span class="tag-minus">−</span> Zdieľaná kapacita v okolí</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Optika (FTTH)</strong></td>
+                <td>Optický kábel</td>
+                <td>100 Mb/s – 10 Gb/s</td>
+                <td><span class="tag-plus">+</span> Najvyšší výkon, symetrické &nbsp;<span class="tag-minus">−</span> Vyššia cena inštalácie</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">WiFi / WLAN</strong></td>
+                <td>Rádiové vlny (2,4/5 GHz)</td>
+                <td>10 Mb/s – 1+ Gb/s</td>
+                <td><span class="tag-plus">+</span> Mobilita &nbsp;<span class="tag-minus">−</span> Rušenie, dosah obmedzený</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Mobilné (4G/5G)</strong></td>
+                <td>Mobilná sieť</td>
+                <td>10–1000 Mb/s</td>
+                <td><span class="tag-plus">+</span> Pokrytie všade &nbsp;<span class="tag-minus">−</span> Dátové limity, vyššia latencia</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Satelitné</strong></td>
+                <td>Satelit (Starlink...)</td>
+                <td>25–200 Mb/s</td>
+                <td><span class="tag-plus">+</span> Dostupné kdekoľvek &nbsp;<span class="tag-minus">−</span> Vysoká latencia, cena</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 5.1b</div>
+          <h3>Vysvetlite pojem počítačová netiketa.</h3>
+          <div class="info-box">
+            <p><strong>Netiketa</strong> (net + etiketa) je súbor pravidiel slušného a ohľaduplného správania v online prostredí — analogicky k spoločenskej etikete v reálnom živote.</p>
+          </div>
+          <p>Základné pravidlá netikety:</p>
+          <ul>
+            <li>Správaj sa k ostatným tak, ako chceš, aby sa správali k tebe</li>
+            <li>Nepoužívaj VEĽKÉ PÍSMENÁ — v online komunikácii to znamená kričanie</li>
+            <li>Nekradni obsah — uvádzaj zdroje a rešpektuj autorské práva</li>
+            <li>Nezdieľaj osobné údaje iných bez ich súhlasu</li>
+            <li>Nerozposielaj spam, reťazové e-maily ani nevyžiadanú reklamu</li>
+            <li>Buď stručný a jasný — rešpektuj čas ostatných</li>
+            <li>Neodpovedaj v hneve — "odhlaď" správu pred odoslaním</li>
+            <li>Overuj informácie pred zdieľaním — bojuj proti hoaxom a dezinformáciám</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 5.2</span>
+        <span class="uloha-title">Výpočet prenosu súboru a zabezpečenie prístupu</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 5.2a</div>
+          <h3>Vypočítajte odhadovaný čas prenosu súboru 8 GB.</h3>
+          <div class="info-box">
+            <p><strong>Dôležité:</strong> Prenosové rýchlosti sa udávajú v <strong>Mb/s (megabit za sekundu)</strong>, ale veľkosť súborov v <strong>MB (megabyte)</strong>. 1 byte = 8 bitov → treba previesť!</p>
+          </div>
+          <p style="margin-top:0.75rem"><strong style="color:#fff">Prevod: 8 GB = 8 × 1024 MB = 8192 MB = 8192 × 8 Mb = 65 536 Mb</strong></p>
+
+          <div style="margin-top:1rem">
+            <p><strong style="color:var(--accent)">Download (sťahovanie) — rýchlosť 4 Mb/s:</strong></p>
+            <div class="info-box">
+              <p style="font-family:'Space Mono',monospace;font-size:0.9rem;line-height:2">
+                t = 65 536 Mb ÷ 4 Mb/s = <strong style="color:var(--green)">16 384 sekúnd</strong><br>
+                = 16 384 ÷ 60 = <strong style="color:var(--green)">≈ 273 minút ≈ 4 hodiny 33 minút</strong>
+              </p>
+            </div>
+          </div>
+
+          <div style="margin-top:1rem">
+            <p><strong style="color:var(--accent)">Upload (nahrávanie) — rýchlosť 1 MB/s:</strong></p>
+            <div class="info-box">
+              <p style="font-family:'Space Mono',monospace;font-size:0.9rem;line-height:2">
+                Rýchlosť 1 MB/s = 8 Mb/s (pozor — tu je MB/s nie Mb/s!)<br>
+                t = 8192 MB ÷ 1 MB/s = <strong style="color:var(--green)">8192 sekúnd</strong><br>
+                = 8192 ÷ 60 = <strong style="color:var(--green)">≈ 136 minút ≈ 2 hodiny 16 minút</strong>
+              </p>
+            </div>
+          </div>
+          <p style="color:var(--muted);font-size:0.85rem;margin-top:0.5rem">* Reálny čas bude dlhší kvôli réžii protokolov, latencii a variabilite rýchlosti siete.</p>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 5.2b</div>
+          <h3>Porovnajte zabezpečenie prístupu: meno/heslo, biometrické údaje, QR kód.</h3>
+          <table class="comp-table">
+            <thead><tr><th>Metóda</th><th>Princíp</th><th>Výhody</th><th>Nevýhody</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#fff">Meno + heslo</strong></td>
+                <td>Znalosť (niečo čo vieš)</td>
+                <td>
+                  <span class="tag-plus">+</span> Jednoduché, lacné<br>
+                  <span class="tag-plus">+</span> Ľahko zmeniteľné
+                </td>
+                <td>
+                  <span class="tag-minus">−</span> Slabé heslá<br>
+                  <span class="tag-minus">−</span> Phishing, únik dát<br>
+                  <span class="tag-minus">−</span> Nutnosť pamätať
+                </td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Biometrické údaje</strong></td>
+                <td>Vlastnosť (niečo čo si)</td>
+                <td>
+                  <span class="tag-plus">+</span> Nelze zabudnúť<br>
+                  <span class="tag-plus">+</span> Rýchle, pohodlné<br>
+                  <span class="tag-plus">+</span> Ťažko kopírovateľné
+                </td>
+                <td>
+                  <span class="tag-minus">−</span> Nelze zmeniť pri úniku<br>
+                  <span class="tag-minus">−</span> Drahšia technika<br>
+                  <span class="tag-minus">−</span> Ochrana súkromia
+                </td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">QR kód</strong></td>
+                <td>Vlastníctvo (niečo čo máš)</td>
+                <td>
+                  <span class="tag-plus">+</span> Rýchle skenovanie<br>
+                  <span class="tag-plus">+</span> Vhodné pre 2FA<br>
+                  <span class="tag-plus">+</span> Bez hesla
+                </td>
+                <td>
+                  <span class="tag-minus">−</span> Možnosť zkopírovania<br>
+                  <span class="tag-minus">−</span> Potreba zariadenia<br>
+                  <span class="tag-minus">−</span> Riziko falošných QR
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="info-box" style="margin-top:1rem">
+            <p><strong>Záver:</strong> Najsilnejšie zabezpečenie poskytuje kombinácia viacerých metód — <strong>MFA (Multi-Factor Authentication)</strong>, napr. heslo + OTP kód z aplikácie + biometria.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ TÉMA 6 ═══════════════════ -->
+  <section class="tema" id="tema-6">
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 6</span>
+        <span class="uloha-title">Hardware, software a komponenty grafickej karty</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 6a</div>
+          <h3>Vymenujte hardware a software počítača pri prenose obrazu.</h3>
+          <div class="kabel-grid">
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; Hardware</div>
+              <div style="padding:1rem;font-size:0.88rem;color:#c8c8de;line-height:1.9">
+                <ul style="padding-left:1.2rem">
+                  <li><strong>Grafická karta (GPU)</strong> — spracovanie obrazu</li>
+                  <li><strong>Monitor / displej</strong> — zobrazenie výstupu</li>
+                  <li><strong>Kamera / webkamera</strong> — snímanie obrazu</li>
+                  <li><strong>Zachytávacia karta</strong> — digitalizácia video vstupu</li>
+                  <li><strong>CPU</strong> — riadi tok dát, softvérové dekódovanie</li>
+                  <li><strong>RAM</strong> — dočasné uloženie snímok (frame buffer)</li>
+                  <li><strong>Rozhraní:</strong> HDMI, DisplayPort, USB, VGA</li>
+                </ul>
+              </div>
+            </div>
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; Software</div>
+              <div style="padding:1rem;font-size:0.88rem;color:#c8c8de;line-height:1.9">
+                <ul style="padding-left:1.2rem">
+                  <li><strong>Ovládač GPU</strong> — komunikácia OS s kartou</li>
+                  <li><strong>DirectX / OpenGL / Vulkan</strong> — grafické API</li>
+                  <li><strong>Kodek</strong> — kompresia/dekompresia video (H.264, HEVC)</li>
+                  <li><strong>Prehrávač / editor</strong> — VLC, Premiere, OBS</li>
+                  <li><strong>Operačný systém</strong> — správa zdrojov a výstupu</li>
+                  <li><strong>Streaming SW</strong> — OBS, Streamlabs pre vysielanie</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 6b</div>
+          <h3>Charakterizujte komponenty grafickej karty, jej rozhrania a zbernice.</h3>
+          <ul>
+            <li><strong>GPU (Graphics Processing Unit)</strong> — hlavný čip karty s tisíckami jadier pre paralelné spracovanie pixelov a vrcholov. Na rozdiel od CPU (niekoľko výkonných jadier) má GPU tisíce jednoduchších jadier</li>
+            <li><strong>VRAM (Video RAM)</strong> — rýchla pamäť priamo na karte (GDDR6, HBM) pre uloženie textúr, frame bufferu a dát scény. Bežne 4–24 GB</li>
+            <li><strong>RAMDAC</strong> — prevodník digitálneho signálu na analógový (pre VGA výstup); v moderných kartách nahradený digitálnymi výstupmi</li>
+            <li><strong>Chladenie</strong> — ventilátory, heatpipes, heatsink; niektoré karty využívajú vodné chladenie</li>
+            <li><strong>VRM (Voltage Regulator Module)</strong> — reguluje napájanie GPU a VRAM</li>
+          </ul>
+          <p style="margin-top:0.75rem"><strong style="color:#fff">Rozhrania a výstupy:</strong> HDMI 2.1 (8K@60Hz), DisplayPort 1.4/2.0 (8K@120Hz), DVI, VGA (zastaralé)</p>
+          <p style="margin-top:0.5rem"><strong style="color:#fff">Zbernice:</strong> PCIe (PCI Express) x16 — hlavná zbernica pre komunikáciu GPU s CPU a RAM. Aktuálne PCIe 4.0 a 5.0</p>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 6c</div>
+          <h3>Stručne charakterizujte: optický snímač, kodek, kontajner, stratová kompresia.</h3>
+          <table class="comp-table">
+            <thead><tr><th>Pojem</th><th>Definícia</th><th>Príklady</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#fff">Optický snímač (kamera)</strong></td>
+                <td>Zariadenie, ktoré prevedie svetlo na digitálny elektrický signál. Skladá sa zo šošovky a senzora (CCD alebo CMOS), ktorý obsahuje milióny fotodiód (pixelov).</td>
+                <td>Webkamera, DSLR senzor, smartphone kamera</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Kodek</strong></td>
+                <td>Algoritmus (coder-decoder) na kompresiu a dekompresiu digitálneho video/audio signálu. Redukuje veľkosť súboru pri zachovaní akceptovateľnej kvality.</td>
+                <td>H.264, H.265/HEVC, AV1, VP9, MP3, AAC</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Kontajner</strong></td>
+                <td>Formát súboru, ktorý "zabalí" video stopu, audio stopu, titulky a metadáta dohromady. Kontajner neurčuje kodek — môže obsahovať rôzne kodeky.</td>
+                <td>.mp4, .mkv, .avi, .mov, .webm</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Stratová kompresia</strong></td>
+                <td>Metóda kompresie, pri ktorej sa trvalo odstraňujú dáta, ktoré ľudské oko/ucho vníma menej. Výsledný súbor je menší, ale nedá sa plne obnoviť do originálu.</td>
+                <td>JPEG (obrázky), MP3 (audio), H.264 (video)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 6.1</span>
+        <span class="uloha-title">Farebný model RGB</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 6.1a</div>
+          <h3>Vysvetlite použitie farebného modelu RGB v zobrazovacích jednotkách.</h3>
+          <div class="info-box">
+            <p><strong>RGB (Red, Green, Blue)</strong> je aditívny farebný model, v ktorom sa farby vytvárajú <strong>skladaním (sčítaním) svetla</strong> troch základných farieb — červenej, zelenej a modrej. Používa sa vo všetkých svetelných zobrazovacích zariadeniach.</p>
+          </div>
+          <p>Každá zo základných farieb môže nadobúdať hodnotu <strong>0–255</strong> (8 bitov = 1 byte), celkovo 3 bajty na pixel = <strong>16 777 216 farieb</strong> (tzv. true color).</p>
+
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin:1rem 0">
+            <div style="text-align:center">
+              <div style="width:70px;height:70px;border-radius:50%;background:#ff0000;display:inline-block;box-shadow:0 0 20px #ff0000aa"></div>
+              <p style="font-family:'Space Mono',monospace;font-size:0.75rem;margin-top:0.5rem;color:#ff4d6a">R: 255, G: 0, B: 0</p>
+            </div>
+            <div style="text-align:center">
+              <div style="width:70px;height:70px;border-radius:50%;background:#00ff00;display:inline-block;box-shadow:0 0 20px #00ff00aa"></div>
+              <p style="font-family:'Space Mono',monospace;font-size:0.75rem;margin-top:0.5rem;color:var(--green)">R: 0, G: 255, B: 0</p>
+            </div>
+            <div style="text-align:center">
+              <div style="width:70px;height:70px;border-radius:50%;background:#0000ff;display:inline-block;box-shadow:0 0 20px #0000ffaa"></div>
+              <p style="font-family:'Space Mono',monospace;font-size:0.75rem;margin-top:0.5rem;color:#6699ff">R: 0, G: 0, B: 255</p>
+            </div>
+            <div style="text-align:center">
+              <div style="width:70px;height:70px;border-radius:50%;background:#ffffff;display:inline-block;box-shadow:0 0 20px #ffffffaa"></div>
+              <p style="font-family:'Space Mono',monospace;font-size:0.75rem;margin-top:0.5rem;color:#fff">R:255, G:255, B:255 = Biela</p>
+            </div>
+            <div style="text-align:center">
+              <div style="width:70px;height:70px;border-radius:50%;background:#000000;border:1px solid var(--border);display:inline-block"></div>
+              <p style="font-family:'Space Mono',monospace;font-size:0.75rem;margin-top:0.5rem;color:var(--muted)">R: 0, G: 0, B: 0 = Čierna</p>
+            </div>
+          </div>
+
+          <p><strong style="color:#fff">Ako funguje pixel na displeji:</strong> Každý pixel monitora / OLED displeja / telefónu sa skladá z troch subpixelov — červeného, zeleného a modrého. Riadič displeja nastaví intenzitu každého subpixelu (0–255) a ľudské oko ich vníma ako jednu farebnú bodku.</p>
+          <ul style="margin-top:0.75rem">
+            <li><strong>LCD / LED monitory</strong> — podsvietenie filtrované farebnými filtrami RGB</li>
+            <li><strong>OLED</strong> — každý subpixel sám svieti, dosiahne absolútnu čiernu (R=G=B=0 = vypnutý)</li>
+            <li><strong>Projektory</strong> — tri oddelené svetelné zdroje (R, G, B) kombinované optikou</li>
+          </ul>
+          <div class="info-box" style="margin-top:1rem">
+            <p><strong>RGB vs CMYK:</strong> RGB (aditívny) sa používa pre svetelné zariadenia — čím viac svetla, tým svetlejšie. CMYK (subtraktívny) sa používa v tlači — farbivá absorbujú (odstraňujú) časti svetla. Pri digitálnom obsahu vždy pracujeme s RGB.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════ TÉMA 7 ═══════════════════ -->
+  <section class="tema" id="tema-7">
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Téma 17 — Úloha b/c</span>
+        <span class="uloha-title">Zobrazovacie jednotky a video/zvukový stream</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// b</div>
+          <h3>Porovnajte zobrazovacie jednotky typu CRT, LCD a OLED.</h3>
+          <div class="info-box">
+            <p>Zobrazovacie jednotky (monitory, displeje) prešli vývojom od objemných CRT trubíc cez tenké LCD panely až po moderné OLED displeje s dokonalou čiernou farbou.</p>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="comp-table" style="min-width:600px">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>CRT</th>
+                  <th>LCD</th>
+                  <th>OLED</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong style="color:#fff">Princíp</strong></td>
+                  <td>Elektrónový lúč rozsvecuje fosforescenčnú vrstvu na vnútri sklenej trubice</td>
+                  <td>Podsvietenie (LED) prechádza cez tekuté kryštály a farebné filtre</td>
+                  <td>Každý pixel sám emituje svetlo pomocou organickej diódy</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Čierna farba</strong></td>
+                  <td>Dobrá (lúč vypnutý)</td>
+                  <td><span class="tag-minus">Slabá</span> — podsvietenie vždy svieti</td>
+                  <td><span class="tag-plus">Absolútna</span> — pixel vypnutý = čierna</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Kontrast</strong></td>
+                  <td>Dobrý (~1000:1)</td>
+                  <td>Stredný (~1000:1)</td>
+                  <td><span class="tag-plus">Nekonečný</span> (skutočná čierna)</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Jas / farby</strong></td>
+                  <td>Stredný, prirodzené farby</td>
+                  <td>Vysoký jas, dobré farby</td>
+                  <td><span class="tag-plus">Výnimočný jas</span>, živé farby</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Odozva</strong></td>
+                  <td><span class="tag-plus">Veľmi rýchla</span> (~1 ms)</td>
+                  <td>Stredná (1–10 ms)</td>
+                  <td><span class="tag-plus">Veľmi rýchla</span> (&lt;1 ms)</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Rozmer / hmotnosť</strong></td>
+                  <td><span class="tag-minus">Objemný, ťažký</span> (30+ cm hlboký)</td>
+                  <td><span class="tag-plus">Tenký, ľahký</span></td>
+                  <td><span class="tag-plus">Veľmi tenký</span>, ohybný</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Spotreba energie</strong></td>
+                  <td><span class="tag-minus">Vysoká</span> (60–150 W)</td>
+                  <td>Stredná (20–50 W)</td>
+                  <td><span class="tag-plus">Nízka</span> (závisí od obsahu)</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Životnosť</strong></td>
+                  <td>Dlhá (pri správnej údržbe)</td>
+                  <td><span class="tag-plus">Dlhá</span> (50 000+ hodín)</td>
+                  <td>Kratšia — organické pixely degradujú, riziko burn-in</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Cena</strong></td>
+                  <td>Lacný (dnes zastaralý)</td>
+                  <td><span class="tag-plus">Dostupná</span></td>
+                  <td><span class="tag-minus">Vyššia</span></td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Použitie dnes</strong></td>
+                  <td>Zastaralý, retro/vintage</td>
+                  <td>Bežné monitory, notebooky</td>
+                  <td>TV, smartfóny, high-end monitory</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// c</div>
+          <h3>Vysvetlite pojmy: video stream, zvukový stream.</h3>
+          <div class="info-box">
+            <p><strong>Stream</strong> (prúd dát) je nepretržitý tok digitálnych dát prenášaný v reálnom čase alebo postupne z jedného zariadenia/servera ku klientovi, bez nutnosti stiahnuť celý súbor vopred.</p>
+          </div>
+          <p><strong style="color:#fff">Video stream</strong> — sekvenčný tok zakomprimovaných video snímok (frame-ov) prenášaný cez sieť alebo uložený v súbore. Každá snímka je zakódovaná kodekom (H.264, HEVC, AV1). Parametre video streamu:</p>
+          <ul>
+            <li><strong>Bitrate</strong> — množstvo dát za sekundu (napr. 5 Mb/s pre HD)</li>
+            <li><strong>Rozlíšenie</strong> — počet pixelov (1920×1080, 3840×2160...)</li>
+            <li><strong>Snímková frekvencia (FPS)</strong> — počet snímok za sekundu (24, 30, 60 fps)</li>
+            <li><strong>Kodek</strong> — algoritmus kompresie (H.264, HEVC/H.265, AV1, VP9)</li>
+          </ul>
+          <p style="margin-top:0.75rem"><strong style="color:#fff">Zvukový stream</strong> — nepretržitý tok zakomprimovaných zvukových dát. Parametry:</p>
+          <ul>
+            <li><strong>Vzorkovacia frekvencia (sample rate)</strong> — počet vzoriek za sekundu; 44 100 Hz (CD kvalita), 48 000 Hz (video)</li>
+            <li><strong>Bitová hĺbka</strong> — počet bitov na vzorku (16-bit, 24-bit)</li>
+            <li><strong>Kanály</strong> — mono (1), stereo (2), surround (5.1, 7.1)</li>
+            <li><strong>Kodek</strong> — MP3, AAC, Opus, FLAC (bezstratový)</li>
+          </ul>
+          <p style="margin-top:0.75rem">V multimediálnom súbore (kontajner .mp4, .mkv) sú video stream a zvukový stream uložené spoločne a synchronizované pomocou časových razítok (timestamps/PTS).</p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 3</span>
+        <span class="uloha-title">Video kontajnery, výber monitora, ergonómia</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 3a</div>
+          <h3>Porovnajte video digitálne kontajnery: AVI, MPEG, MP4, MOV, OGG, 3GP, DV.</h3>
+          <div class="info-box">
+            <p><strong>Kontajner</strong> (obal/wrapper) je formát súboru, ktorý zabaľuje video stream, audio stream, titulky a metadáta do jedného súboru. Nezávisle od kontajnera môžu byť v ňom rôzne kodeky.</p>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="comp-table" style="min-width:620px">
+              <thead>
+                <tr>
+                  <th>Kontajner</th>
+                  <th>Plný názov</th>
+                  <th>Kodeky (typické)</th>
+                  <th>Použitie &amp; poznámky</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong style="color:var(--accent);font-family:'Space Mono',monospace">.avi</strong></td>
+                  <td>Audio Video Interleave</td>
+                  <td>DivX, Xvid, MPEG-4, MP3</td>
+                  <td>Starší formát Microsoft (1992). Veľké súbory, slabá podpora streamingu. Stále rozšírený.</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--accent);font-family:'Space Mono',monospace">.mpg/.mpeg</strong></td>
+                  <td>Moving Picture Experts Group</td>
+                  <td>MPEG-1, MPEG-2</td>
+                  <td>Štandard pre DVD a digitálnu TV (DVB). MPEG-2 používa Blu-ray a digitálna televízia.</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--accent);font-family:'Space Mono',monospace">.mp4</strong></td>
+                  <td>MPEG-4 Part 14</td>
+                  <td>H.264, H.265, AAC, MP3</td>
+                  <td><span class="tag-plus">Dnes najrozšírenejší.</span> Vhodný pre streaming (YouTube, Netflix), web, mobilné zariadenia. Malá veľkosť, vysoká kvalita.</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--accent);font-family:'Space Mono',monospace">.mov</strong></td>
+                  <td>QuickTime Movie</td>
+                  <td>H.264, ProRes, AAC</td>
+                  <td>Formát Apple / QuickTime. Vysoká kvalita pre profesionálnu produkciu (Final Cut Pro). Väčšie súbory.</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--accent);font-family:'Space Mono',monospace">.ogg/.ogv</strong></td>
+                  <td>Ogg (open source)</td>
+                  <td>Theora (video), Vorbis (audio)</td>
+                  <td>Otvorený, bezplatný formát. Vhodný pre web (HTML5). Menšia podpora v komerčných prehrávačoch.</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--accent);font-family:'Space Mono',monospace">.3gp</strong></td>
+                  <td>3GPP</td>
+                  <td>H.263, H.264, AAC, AMR</td>
+                  <td>Formát pre staré mobilné telefóny (3G éra). Nízke rozlíšenie, malé súbory. Dnes nahradený MP4.</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--accent);font-family:'Space Mono',monospace">.dv</strong></td>
+                  <td>Digital Video</td>
+                  <td>DV codec (25 Mb/s)</td>
+                  <td>Formát digitálnych videokamier (MiniDV kazety, 1990–2000s). Vysoká kvalita pre strih, veľké súbory (~13 GB/hod).</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 3b</div>
+          <h3>Na aké parametre monitora by ste brali najväčší ohľad pri jeho nákupe?</h3>
+          <ul>
+            <li><strong>Rozlíšenie</strong> — minimálne Full HD (1920×1080), ideálne QHD (2560×1440) alebo 4K (3840×2160) pre ostrý obraz. Vyššie rozlíšenie = viac pixelov = ostrejší obraz.</li>
+            <li><strong>Veľkosť uhlopriečky</strong> — závisí od vzdialenosti a použitia. Pre prácu 24–27", pre gaming/profesionálnu prácu 27–32".</li>
+            <li><strong>Typ panela</strong>
+              <ul>
+                <li><em>IPS</em> — najlepšie farby a pozorovacie uhly → grafici, dizajnéri</li>
+                <li><em>VA</em> — najlepší kontrast → sledovanie filmov</li>
+                <li><em>TN</em> — najrýchlejší, najlacnejší, ale slabé farby → hráči (gaming)</li>
+                <li><em>OLED</em> — najlepšia kvalita, ale drahší → high-end</li>
+              </ul>
+            </li>
+            <li><strong>Obnovovacia frekvencia (Hz)</strong> — 60 Hz pre bežné použitie, 144–240 Hz pre gaming (plynulejší pohyb).</li>
+            <li><strong>Doba odozvy (ms)</strong> — dôležité pre gaming. Čím nižšia, tým menej "ghostingu". 1–5 ms je ideálne.</li>
+            <li><strong>Jas (cd/m²)</strong> — minimálne 250–300 cd/m², pre HDR obsah 600+ cd/m².</li>
+            <li><strong>Kontrast</strong> — typicky 1000:1; OLED ponúka nekonečný kontrast.</li>
+            <li><strong>Rozhrania a konektory</strong> — HDMI 2.0/2.1, DisplayPort 1.4, USB-C (pre notebooky).</li>
+            <li><strong>Nastaviteľnosť stojana</strong> — výška, náklon, rotácia (pivot) pre ergonómiu.</li>
+          </ul>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 3c</div>
+          <h3>Zhodnoťte monitory z ergonomického a ekonomického hľadiska.</h3>
+
+          <div class="kabel-grid">
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; Ergonomické hľadisko</div>
+              <div style="padding:1rem;font-size:0.88rem;color:#c8c8de;line-height:1.8">
+                <p style="margin-bottom:0.5rem"><strong style="color:#fff">Ergonómia</strong> = prispôsobenie monitora fyzickým potrebám používateľa pre minimalizáciu záťaže.</p>
+                <ul style="padding-left:1.2rem">
+                  <li><strong>Nastaviteľnosť stojana</strong> — výška, náklon, otočenie; monitor by mal byť v úrovni očí</li>
+                  <li><strong>Protireflexná vrstva</strong> — znižuje únavu očí pri dlhom sledovaní</li>
+                  <li><strong>Flicker-free technológia</strong> — eliminácia blikania podsvietenia (príčina bolesti hlavy)</li>
+                  <li><strong>Low Blue Light</strong> — redukcia modrého svetla (škodí pri práci v noci)</li>
+                  <li><strong>Vzdialenosť 50–70 cm</strong> od obrazovky je odporúčaná</li>
+                  <li><strong>Rozlíšenie a veľkosť</strong> — príliš malý monitor = namáhanie zraku; príliš veľký = namáhanie krku</li>
+                  <li><strong>Zakrivené (curved) monitory</strong> — prispôsobujú sa poli videnia, znižujú únavu pri širokých uhlopriečkach</li>
+                </ul>
+              </div>
+            </div>
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; Ekonomické hľadisko</div>
+              <div style="padding:1rem;font-size:0.88rem;color:#c8c8de;line-height:1.8">
+                <p style="margin-bottom:0.5rem"><strong style="color:#fff">Ekonomika</strong> = pomer cena / výkon / životnosť / prevádzkové náklady.</p>
+                <ul style="padding-left:1.2rem">
+                  <li><strong>Obstarávacia cena</strong> — TN panely sú najlacnejšie, OLED najdrahšie</li>
+                  <li><strong>Spotreba energie</strong> — LED LCD ~20–40 W, OLED ~15–50 W (závisí od jasu). Pri 8h/deň rozdiel stovky eur za rok</li>
+                  <li><strong>Životnosť</strong> — LCD 50 000+ hodín; OLED kratšia kvôli degradácii organických materiálov</li>
+                  <li><strong>Záručná doba a servis</strong> — 2–3 roky záruky; on-site výmena panelu (dead pixel politika)</li>
+                  <li><strong>Produktivita</strong> — väčší / kvalitnejší monitor zvyšuje pracovný komfort a výkon, čo má ekonomický prínos</li>
+                  <li><strong>Dual monitor setup</strong> — dva lacnejšie monitory vs. jeden veľký — závisí od použitia</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-box" style="margin-top:1.25rem">
+            <p><strong>Záver:</strong> Pre bežné kancelárske použitie je optimálny <strong>27" IPS Full HD alebo QHD monitor</strong> s Flicker-free a Low Blue Light — dobrý pomer ceny, ergonómie a kvality. Pre profesionálnu grafiku odporúčame IPS/OLED s kalibráciou farieb; pre gaming 144Hz+ TN alebo IPS panel.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════ TÉMA 8 ═══════════════════ -->
+  <section class="tema" id="tema-8">
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 1</span>
+        <span class="uloha-title">Smerovanie — definícia, formy, protokoly a algoritmy</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 1a</div>
+          <h3>Popíšte čo je smerovanie.</h3>
+          <div class="info-box">
+            <p><strong>Smerovanie (routing)</strong> je proces výberu optimálnej cesty pre prenos dátových paketov z jedného uzla (zdrojovej IP adresy) na druhý (cieľovú IP adresu) cez sieť alebo sústavu sietí (internet). Smerovanie prebieha na <strong>3. vrstve OSI modelu (Sieťová vrstva)</strong> a vykonáva ho zariadenie nazývané <strong>router (smerovač)</strong>.</p>
+          </div>
+          <p>Princíp smerovania:</p>
+          <ul>
+            <li>Pakety prichádzajú na vstupné rozhranie routera</li>
+            <li>Router prečíta cieľovú IP adresu z hlavičky paketu</li>
+            <li>Porovná ju so <strong>smerovacou tabuľkou</strong> (routing table)</li>
+            <li>Vyberie najlepší výstupný port (Next Hop) a paket prepošle</li>
+            <li>Proces sa opakuje na každom smerovači po ceste, kým paket nedosiahne cieľ</li>
+          </ul>
+          <p style="margin-top:0.75rem">Ak router nenájde zhodu v tabuľke, použije <strong>predvolenú bránu (default gateway/route)</strong> — zvyčajne smer k nadriadenému routeru alebo ISP.</p>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 1b</div>
+          <h3>Vysvetlite aké formy smerovania poznáme a kedy ich používame.</h3>
+          <table class="comp-table">
+            <thead>
+              <tr><th>Forma</th><th>Popis</th><th>Kedy sa používa</th><th>Výhody / Nevýhody</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#fff">Statické smerovanie</strong></td>
+                <td>Administrátor manuálne zadá záznamy do smerovacej tabuľky. Cesty sa nemenia automaticky.</td>
+                <td>Malé, jednoduché siete; stub siete s jedným výstupom; bezpečnostne citlivé prostredia</td>
+                <td><span class="tag-plus">+</span> Predvídateľné, bezpečné, bez réžie<br><span class="tag-minus">−</span> Neskálovateľné, manuálna správa</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Dynamické smerovanie</strong></td>
+                <td>Routery si vymieňajú informácie o sieťach pomocou smerovacích protokolov a automaticky aktualizujú tabuľky.</td>
+                <td>Stredné a veľké siete; podnikové siete; internet</td>
+                <td><span class="tag-plus">+</span> Automatická adaptácia na zmeny, škálovateľné<br><span class="tag-minus">−</span> Réžia CPU a šírky pásma, zložitejšia konfigurácia</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Default route (predvolená)</strong></td>
+                <td>Záchytná cesta — ak sa paket nezhoduje so žiadnou inou cestou, pošle sa touto cestou (0.0.0.0/0).</td>
+                <td>Výstup do internetu, stub routery s jedným upstream spojením</td>
+                <td><span class="tag-plus">+</span> Jednoduché, efektívne<br><span class="tag-minus">−</span> Nevhodné pre zložité topológie</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Policy-based routing</strong></td>
+                <td>Smerovanie na základe pravidiel (policy) — napr. podľa zdrojovej adresy, portu, QoS.</td>
+                <td>Load balancing, VPN, viacero ISP, bezpečnostné politiky</td>
+                <td><span class="tag-plus">+</span> Flexibilné<br><span class="tag-minus">−</span> Zložité na konfiguráciu</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 1c</div>
+          <h3>Vysvetlite pojmy dynamický smerovací protokol a smerovací algoritmus.</h3>
+          <div class="info-box">
+            <p><strong>Dynamický smerovací protokol</strong> je sada pravidiel a správ, ktoré umožňujú routerom navzájom si vymieňať informácie o dostupných sieťach, ich metrikách a zmenách topológie — bez manuálneho zásahu administrátora.</p>
+          </div>
+          <p>Dynamické protokoly sa delia podľa oblasti použitia:</p>
+          <ul>
+            <li><strong>IGP (Interior Gateway Protocol)</strong> — používané vnútri jedného autonómneho systému (AS). Príklady: RIP, OSPF, EIGRP</li>
+            <li><strong>EGP (Exterior Gateway Protocol)</strong> — medzi autonómnymi systémami (internet). Príklad: BGP</li>
+          </ul>
+          <p style="margin-top:0.75rem"><strong style="color:#fff">Smerovací algoritmus</strong> je matematická metóda, pomocou ktorej smerovací protokol vypočíta optimálnu cestu k cieľu na základe <strong>metriky</strong> (počet skokov, šírka pásma, oneskorenie, spoľahlivosť...).</p>
+          <p style="margin-top:0.5rem">Hlavné typy smerovacích algoritmov:</p>
+          <ul>
+            <li><strong>Distance-Vector (Bellman-Ford)</strong> — každý router pozná len vzdialenosť k cieľu a smer (next hop). Periodicky posiela celú tabuľku susedom. Jednoduchý, ale pomalá konvergencia. Používa: RIP</li>
+            <li><strong>Link-State (Dijkstra)</strong> — každý router pozná celú topológiu siete (Link State Database). Rýchla konvergencia, škálovateľný, ale náročnejší na pamäť/CPU. Používa: OSPF, IS-IS</li>
+            <li><strong>Hybrid (Advanced Distance-Vector)</strong> — kombinuje výhody oboch. Rýchla konvergencia ako link-state, ale posiela len zmeny. Používa: EIGRP</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 2</span>
+        <span class="uloha-title">Smerovací protokoly RIP, OSPF a EIGRP</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 2a</div>
+          <h3>Charakterizujte smerovací protokol RIP2 (RIP 1) a OSPF.</h3>
+
+          <div style="margin-bottom:1.5rem">
+            <p style="font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--accent2);margin-bottom:0.75rem">◆ RIP — Routing Information Protocol</p>
+            <table class="comp-table">
+              <thead><tr><th>Parameter</th><th>RIP v1</th><th>RIP v2</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><strong style="color:#fff">Algoritmus</strong></td>
+                  <td colspan="2">Distance-Vector (Bellman-Ford)</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Metrika</strong></td>
+                  <td colspan="2">Hop count (počet skokov) — max. <strong>15 skokov</strong> (16 = nedosiahnuteľné)</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Aktualizácie</strong></td>
+                  <td colspan="2">Periodicky každých <strong>30 sekúnd</strong> — posiela celú smerovaciu tabuľku</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Classless / Classful</strong></td>
+                  <td>Classful (bez masky)</td>
+                  <td><span class="tag-plus">Classless</span> (posiela aj masku podsiete — VLSM)</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Autentifikácia</strong></td>
+                  <td><span class="tag-minus">Žiadna</span></td>
+                  <td><span class="tag-plus">MD5 autentifikácia</span></td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Multicast/Broadcast</strong></td>
+                  <td>Broadcast (255.255.255.255)</td>
+                  <td>Multicast (224.0.0.9)</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Použitie</strong></td>
+                  <td colspan="2">Malé a jednoduché siete. Dnes zastaralý — nahradený OSPF/EIGRP.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div>
+            <p style="font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--accent2);margin-bottom:0.75rem">◆ OSPF — Open Shortest Path First</p>
+            <ul>
+              <li><strong>Algoritmus:</strong> Link-State — Dijkstrov algoritmus (SPF — Shortest Path First)</li>
+              <li><strong>Metrika:</strong> Cost (cena) = 10⁸ / šírka pásma. Rýchlejšia linka = nižší cost = preferovaná cesta</li>
+              <li><strong>Konvergencia:</strong> Rýchla — posiela len zmeny (LSA — Link State Advertisement), nie celú tabuľku</li>
+              <li><strong>Oblasti (Areas):</strong> Sieť sa delí do oblastí (Area 0 = backbone). Znižuje záťaž v rozsiahlych sieťach</li>
+              <li><strong>Classless:</strong> Podporuje VLSM a CIDR — ľubovoľné masky podsiete</li>
+              <li><strong>Autentifikácia:</strong> Podporuje MD5/SHA autentifikáciu</li>
+              <li><strong>DR/BDR:</strong> V multi-access sieťach sa volí Designated Router (DR) a Backup DR (BDR) pre zníženie réžie</li>
+              <li><strong>Použitie:</strong> Stredné a veľké podnikové siete, ISP, internet. Dnes najpoužívanejší IGP protokol</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 2b</div>
+          <h3>Charakterizujte smerovací protokol EIGRP a jeho 5 typov paketov.</h3>
+          <div class="info-box">
+            <p><strong>EIGRP (Enhanced Interior Gateway Routing Protocol)</strong> je <em>hybridný</em> (advanced distance-vector) protokol vyvinutý spoločnosťou Cisco. Kombinuje rýchlosť konvergencie link-state protokolov s jednoduchosťou distance-vector. Bol dlho proprietárny (Cisco), od 2013 čiastočne otvorený.</p>
+          </div>
+          <p>Základné vlastnosti EIGRP:</p>
+          <ul>
+            <li><strong>Algoritmus DUAL</strong> (Diffusing Update Algorithm) — zaručuje bezslučkovú topológiu a rýchlu konvergenciu</li>
+            <li><strong>Metrika:</strong> Kompozitná — šírka pásma (bandwidth) + oneskorenie (delay), voliteľne aj spoľahlivosť a zaťaženie</li>
+            <li><strong>Successor / Feasible Successor:</strong> Successor = primárna cesta s najnižšou metrikou; Feasible Successor = záložná cesta pre okamžité prepnutie</li>
+            <li><strong>Posiela len zmeny</strong> (bounded updates) — nie celú tabuľku periodicky</li>
+            <li><strong>Multicast adresa:</strong> 224.0.0.10</li>
+          </ul>
+
+          <p style="margin-top:1rem;font-weight:600;color:#fff">5 typov EIGRP paketov:</p>
+          <table class="comp-table">
+            <thead><tr><th>#</th><th>Typ paketu</th><th>Popis a účel</th></tr></thead>
+            <tbody>
+              <tr>
+                <td style="font-family:'Space Mono',monospace;color:var(--accent)">1</td>
+                <td><strong style="color:#fff">Hello</strong></td>
+                <td>Objavovanie a udržiavanie susedských vzťahov (neighbor relationships). Posielajú sa periodicky (5 s LAN, 60 s WAN). Ak susedský router prestane odpovedať po uplynutí hold timeru → spojenie sa zruší.</td>
+              </tr>
+              <tr>
+                <td style="font-family:'Space Mono',monospace;color:var(--accent)">2</td>
+                <td><strong style="color:#fff">Update</strong></td>
+                <td>Prenáša informácie o smerovacích cestách. Posiela sa len pri zmene topológie (nie periodicky) — len susedovi, ktorý danú informáciu potrebuje. Vyžaduje potvrdenie (ACK).</td>
+              </tr>
+              <tr>
+                <td style="font-family:'Space Mono',monospace;color:var(--accent)">3</td>
+                <td><strong style="color:#fff">Query</strong></td>
+                <td>Otázka — router sa pýta susedov na cestu k sieti, keď stratí cestu a nemá Feasible Successor. Vyžaduje Reply odpoveď.</td>
+              </tr>
+              <tr>
+                <td style="font-family:'Space Mono',monospace;color:var(--accent)">4</td>
+                <td><strong style="color:#fff">Reply</strong></td>
+                <td>Odpoveď na Query paket — router informuje suseda o ceste k požadovanej sieti (alebo o jej nedostupnosti).</td>
+              </tr>
+              <tr>
+                <td style="font-family:'Space Mono',monospace;color:var(--accent)">5</td>
+                <td><strong style="color:#fff">ACK (Acknowledgment)</strong></td>
+                <td>Potvrdenie doručenia spoľahlivých paketov (Update, Query, Reply). Je to Hello paket bez dát. Zabezpečuje spoľahlivý prenos kritických informácií.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 3</span>
+        <span class="uloha-title">Smerovacia tabuľka, netstat –r a tracert</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 3a</div>
+          <h3>Vysvetlite, čo je smerovacia tabuľka.</h3>
+          <div class="info-box">
+            <p><strong>Smerovacia tabuľka (routing table)</strong> je databáza uložená v pamäti routera, ktorá obsahuje zoznam známych sietí a informácie o tom, ako k nim poslať paket — aký výstupný port (rozhranie) a aká je nasledujúca zastávka (next hop IP adresa).</p>
+          </div>
+          <p>Každý záznam v smerovacej tabuľke obsahuje:</p>
+          <ul>
+            <li><strong>Cieľová sieť (Network/Destination)</strong> — IP adresa siete + maska (napr. 192.168.10.0/24)</li>
+            <li><strong>Maska podsiete (Subnet Mask / Prefix)</strong> — určuje rozsah siete</li>
+            <li><strong>Next Hop</strong> — IP adresa nasledujúceho routera na ceste k cieľu</li>
+            <li><strong>Výstupné rozhranie (Interface)</strong> — port, cez ktorý sa paket odošle (napr. Gi0/0, eth0)</li>
+            <li><strong>Metrika (Metric)</strong> — "cena" cesty; router preferuje cestu s nižšou metrikou</li>
+            <li><strong>Administatívna vzdialenosť (AD)</strong> — dôveryhodnosť zdroja informácie (static=1, OSPF=110, RIP=120, EIGRP=90)</li>
+            <li><strong>Zdroj záznamu</strong> — C (Connected), S (Static), R (RIP), O (OSPF), D (EIGRP), * (default)</li>
+          </ul>
+          <p style="margin-top:0.75rem">Typy záznamov v tabuľke: <strong>priamo pripojené siete</strong> (Connected — C), <strong>statické záznamy</strong> (S), <strong>dynamicky naučené cesty</strong> (R, O, D...) a <strong>default route</strong> (S* 0.0.0.0/0).</p>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 3b</div>
+          <h3>Popíšte výpis smerovacej tabuľky — príkazy netstat –r a tracert.</h3>
+
+          <p style="margin-bottom:0.75rem"><strong style="color:#fff">Príkaz <code style="font-family:'Space Mono',monospace;background:rgba(0,229,255,0.1);padding:2px 8px;border-radius:3px;color:var(--accent)">netstat -r</code> (Windows/Linux):</strong></p>
+          <p>Zobrazuje smerovaciu tabuľku operačného systému počítača (nie routera). Výpis obsahuje:</p>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1rem;margin:0.75rem 0;overflow-x:auto">
+            <pre style="font-family:'Space Mono',monospace;font-size:0.75rem;color:#c8c8de;line-height:1.8">IPv4 Route Table
+=======================================================
+Network Destination   Netmask        Gateway       Interface   Metric
+<span style="color:var(--green)">0.0.0.0</span>               0.0.0.0        192.168.1.1   192.168.1.5    25   <span style="color:var(--muted)">← default gateway</span>
+<span style="color:var(--accent)">127.0.0.0</span>             255.0.0.0      On-link       127.0.0.1     331  <span style="color:var(--muted)">← loopback</span>
+<span style="color:var(--accent2)">192.168.1.0</span>           255.255.255.0  On-link       192.168.1.5   281  <span style="color:var(--muted)">← lokálna sieť</span>
+<span style="color:var(--accent2)">192.168.1.5</span>           255.255.255.255 On-link      192.168.1.5   281  <span style="color:var(--muted)">← vlastná IP</span></pre>
+          </div>
+          <ul>
+            <li><strong>0.0.0.0 / 0.0.0.0</strong> — default route; všetky pakety bez zhody idú na gateway (192.168.1.1)</li>
+            <li><strong>127.0.0.0</strong> — loopback adresa (localhost)</li>
+            <li><strong>On-link</strong> — cieľ je priamo dostupný na danom rozhraní (bez ďalšieho routera)</li>
+            <li><strong>Metric</strong> — preferencia cesty (nižšia = lepšia)</li>
+          </ul>
+          <p style="margin-top:0.5rem;color:var(--muted);font-size:0.85rem">Alternatíva: <code style="font-family:'Space Mono',monospace">route print</code> (Windows) alebo <code style="font-family:'Space Mono',monospace">ip route show</code> (Linux)</p>
+
+          <p style="margin-top:1.25rem;margin-bottom:0.75rem"><strong style="color:#fff">Príkaz <code style="font-family:'Space Mono',monospace;background:rgba(0,229,255,0.1);padding:2px 8px;border-radius:3px;color:var(--accent)">tracert</code> (Windows) / <code style="font-family:'Space Mono',monospace;background:rgba(0,229,255,0.1);padding:2px 8px;border-radius:3px;color:var(--accent)">traceroute</code> (Linux):</strong></p>
+          <p>Diagnostický nástroj, ktorý zobrazuje <strong>celú cestu paketu</strong> (všetky smerovače = "hopy") od zdroja po cieľ vrátane oneskorenia na každom uzle.</p>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1rem;margin:0.75rem 0;overflow-x:auto">
+            <pre style="font-family:'Space Mono',monospace;font-size:0.75rem;color:#c8c8de;line-height:1.8">C:\&gt; tracert google.com
+
+Tracing route to google.com [142.250.185.46]
+
+  1    1 ms    1 ms    1 ms  <span style="color:var(--accent2)">192.168.1.1</span>       <span style="color:var(--muted)">← domáci router</span>
+  2    8 ms    7 ms    9 ms  <span style="color:var(--accent2)">10.0.0.1</span>          <span style="color:var(--muted)">← router ISP</span>
+  3   12 ms   11 ms   12 ms  <span style="color:var(--green)">195.66.224.1</span>      <span style="color:var(--muted)">← backbone ISP</span>
+  4   18 ms   19 ms   18 ms  <span style="color:var(--green)">72.14.233.1</span>       <span style="color:var(--muted)">← Google sieť</span>
+  5   20 ms   20 ms   21 ms  <span style="color:var(--accent)">142.250.185.46</span>    <span style="color:var(--muted)">← cieľ (google.com)</span>
+
+Trace complete.</pre>
+          </div>
+          <p>Ako tracert funguje: posiela ICMP pakety s postupne sa zvyšujúcim TTL (Time To Live). Každý router znižuje TTL o 1 — keď dosiahne 0, router pošle späť ICMP "Time Exceeded" správu so svojou IP adresou. Takto sa odhalí každý hop.</p>
+          <p style="margin-top:0.5rem">Použitie tracert:</p>
+          <ul>
+            <li>Diagnostika sieťových problémov — kde presne sa paket "stráca"</li>
+            <li>Meranie oneskorenia na každom úseku trasy</li>
+            <li>Identifikácia smerovačov ISP a ich geografickej polohy</li>
+          </ul>
+
+          <div class="info-box" style="margin-top:1rem">
+            <p><strong>Rozdiel:</strong> <code style="font-family:'Space Mono',monospace">netstat -r</code> zobrazuje smerovaciu tabuľku <em>lokálneho zariadenia</em> (kam má počítač posielať pakety). <code style="font-family:'Space Mono',monospace">tracert</code> ukazuje <em>skutočnú trasu paketu</em> cez internet — všetky medzizastávky až po cieľ.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span>Počítačové siete &middot; DÚ zborník</span>
+  <span>T568A &middot; T568B &middot; UTP &middot; STP &middot; FTTH</span>
+</footer>
+
+<script>
+  document.querySelectorAll('nav a').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const temaId = link.dataset.tema;
+      document.querySelectorAll('nav a').forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      document.querySelectorAll('.tema').forEach(t => t.classList.remove('visible'));
+      document.getElementById('tema-' + temaId).classList.add('visible');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  document.querySelectorAll('.uloha-header').forEach(header => {
+    header.addEventListener('click', () => {
+      header.closest('.uloha').classList.toggle('open');
+    });
+  });
+</script>
+</body>
+</html>
