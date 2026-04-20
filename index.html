@@ -281,6 +281,7 @@
   <a href="#" data-tema="6">Téma 6 — Obraz &amp; grafika</a>
   <a href="#" data-tema="7">Téma 7 — Monitory &amp; video</a>
   <a href="#" data-tema="8">Téma 8 — Smerovanie</a>
+  <a href="#" data-tema="9">Téma 9 — Matičná doska &amp; CPU</a>
 </nav>
 
 <main>
@@ -2040,6 +2041,354 @@ Trace complete.</pre>
           <div class="info-box" style="margin-top:1rem">
             <p><strong>Rozdiel:</strong> <code style="font-family:'Space Mono',monospace">netstat -r</code> zobrazuje smerovaciu tabuľku <em>lokálneho zariadenia</em> (kam má počítač posielať pakety). <code style="font-family:'Space Mono',monospace">tracert</code> ukazuje <em>skutočnú trasu paketu</em> cez internet — všetky medzizastávky až po cieľ.</p>
           </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════ TÉMA 9 ═══════════════════ -->
+  <section class="tema" id="tema-9">
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 1</span>
+        <span class="uloha-title">Matičná doska, procesor, CISC a RISC</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 1a</div>
+          <h3>Vymenujte a popíšte jednotlivé komponenty matičnej dosky počítača.</h3>
+          <div class="info-box">
+            <p><strong>Matičná doska (motherboard)</strong> je hlavná plošná doska počítača, na ktorej sú prepojené všetky kľúčové komponenty pomocou zberníc a slotov. Tvorí základ systému a zabezpečuje komunikáciu medzi všetkými časťami PC.</p>
+          </div>
+          <ul>
+            <li><strong>CPU socket</strong> — pätica pre procesor; typ socketu určuje kompatibilitu (napr. LGA1700 pre Intel, AM5 pre AMD)</li>
+            <li><strong>Čipset (Chipset)</strong> — sada čipov riadiacich komunikáciu medzi CPU, RAM, zbernicami a perifériami. Dnes typicky jeden čip (PCH)</li>
+            <li><strong>RAM sloty (DIMM)</strong> — zásuvky pre operačnú pamäť; bežne 2–4 sloty DDR4/DDR5</li>
+            <li><strong>PCIe sloty</strong> — rozširujúce sloty pre grafické karty (x16), sieťové karty (x1, x4), NVMe adaptéry</li>
+            <li><strong>M.2 sloty</strong> — konektor pre NVMe SSD alebo WiFi modul (kľúče M, E, B)</li>
+            <li><strong>SATA konektory</strong> — pripojenie pevných diskov HDD a SSD (až 6 portov)</li>
+            <li><strong>Napájací konektor</strong> — 24-pin ATX hlavný konektor + 4/8-pin EPS pre CPU</li>
+            <li><strong>BIOS/UEFI čip</strong> — ROM pamäť s firmware pre inicializáciu systému (POST, boot)</li>
+            <li><strong>CMOS batéria</strong> — uchováva nastavenia BIOS a hodiny (RTC) pri vypnutom PC</li>
+            <li><strong>I/O panel</strong> — zadné porty: USB, HDMI, DisplayPort, audio jacky, LAN (RJ-45)</li>
+            <li><strong>USB hlavičky</strong> — interné konektory pre predné porty PC skrinky (USB 2.0, 3.0, USB-C)</li>
+            <li><strong>Integrovaná zvuková karta</strong> — Realtek alebo ALC čip pre audio výstup/vstup</li>
+            <li><strong>VRM (Voltage Regulator Module)</strong> — napäťové regulátory pre napájanie CPU</li>
+            <li><strong>POST debug LED / beep kódy</strong> — indikácia chýb pri štarte systému</li>
+          </ul>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 1b</div>
+          <h3>Definujte pojem procesor a charakterizujte jeho základné parametre.</h3>
+          <div class="info-box">
+            <p><strong>Procesor (CPU — Central Processing Unit)</strong> je hlavná výpočtová jednotka počítača, ktorá vykonáva inštrukcie programov. Skladá sa z jadier (cores), cache pamätí a riadiaceho obvodu. Pracuje v cykle: <em>Fetch → Decode → Execute → Write Back</em>.</p>
+          </div>
+          <p>Základné parametre procesora:</p>
+          <ul>
+            <li><strong>Taktovacia frekvencia (GHz)</strong> — počet cyklov za sekundu; vyššia = rýchlejšie spracovanie. Dnes 3,0–6,0 GHz. Procesor sa dá pretaktovať (OC)</li>
+            <li><strong>Počet jadier (cores)</strong> — fyzické výpočtové jednotky. Viac jadier = lepší multitasking. Dnes 4–64 jadier (desktop). Intel má P-cores (výkon) a E-cores (efektivita)</li>
+            <li><strong>Vlákna (threads)</strong> — logické jadrá; Hyper-Threading (Intel) / SMT (AMD) zdvojnásobuje vlákna na jadro (napr. 8 jadier / 16 vlákien)</li>
+            <li><strong>Cache pamäť</strong> — rýchla vyrovnávacia pamäť priamo v CPU (L1, L2, L3). Čím väčšia, tým menej prístupu do pomalšej RAM</li>
+            <li><strong>TDP (Thermal Design Power)</strong> — maximálny tepelný výkon v Wattoch; určuje nároky na chladenie</li>
+            <li><strong>Výrobný proces (nm)</strong> — veľkosť tranzistorov; menšie nm = viac tranzistorov, nižšia spotreba (napr. Intel 7 nm = 10 nm, AMD TSMC 4 nm)</li>
+            <li><strong>IPC (Instructions Per Clock)</strong> — počet inštrukcií vykonaných za jeden takt; miera architektúrnej efektivity</li>
+            <li><strong>Podpora pamäte</strong> — typ (DDR4/DDR5), max. frekvencia a kapacita RAM</li>
+            <li><strong>Socket</strong> — fyzický typ pätica pre konkrétnu matičnú dosku</li>
+          </ul>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 1c</div>
+          <h3>Charakterizujte procesory typu CISC a RISC.</h3>
+          <table class="comp-table">
+            <thead>
+              <tr><th>Parameter</th><th>CISC</th><th>RISC</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#fff">Názov</strong></td>
+                <td>Complex Instruction Set Computer</td>
+                <td>Reduced Instruction Set Computer</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Filozofia</strong></td>
+                <td>Veľký počet komplexných inštrukcií; jedna inštrukcia môže vykonať viacero operácií</td>
+                <td>Malý počet jednoduchých inštrukcií; každá sa vykoná v jednom clock cykle</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Dĺžka inštrukcie</strong></td>
+                <td>Variabilná (1–15 bajtov)</td>
+                <td>Fixná (napr. 4 bajty / 32 bitov)</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Počet registrov</strong></td>
+                <td>Menej registrov</td>
+                <td><span class="tag-plus">Viac registrov</span> (32+)</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Rýchlosť</strong></td>
+                <td>Komplexnejší dekodér, pipeline menej efektívna</td>
+                <td><span class="tag-plus">Rýchlejší pipeline</span>, jednoduchší dekodér</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Spotreba energie</strong></td>
+                <td>Vyššia</td>
+                <td><span class="tag-plus">Nižšia</span> — vhodný pre mobilné zariadenia</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Príklady</strong></td>
+                <td>Intel x86/x64, AMD (desktop/server PC)</td>
+                <td>ARM (smartfóny, Apple M1/M2/M3), RISC-V, MIPS, PowerPC</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Použitie</strong></td>
+                <td>Desktopy, notebooky, servery</td>
+                <td>Mobilné zariadenia, embedded, Apple Silicon, IoT</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="info-box" style="margin-top:1rem">
+            <p><strong>Zaujímavosť:</strong> Moderné x86 procesory (Intel/AMD) sú fyzicky CISC, ale vnútorne prekladajú komplexné inštrukcie na jednoduchšie micro-ops — fakticky fungujú ako RISC jadro v CISC obale.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 2</span>
+        <span class="uloha-title">Zbernice, rozhrania a čipsety</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 2a</div>
+          <h3>Vysvetlite pojem zbernica a rozhranie a ich vlastnosti: šírka, rýchlosť, prenosová kapacita.</h3>
+          <div class="info-box">
+            <p><strong>Zbernica (bus)</strong> je sústava elektrických vodičov (alebo sériová linka) zabezpečujúca prenos dát, adries a riadiacich signálov medzi komponentmi počítača. <strong>Rozhranie (interface)</strong> je fyzická alebo logická hranica medzi dvoma systémami — definuje mechanický konektor, elektrické parametre a protokol komunikácie.</p>
+          </div>
+          <p>Kľúčové vlastnosti zberníc:</p>
+          <ul>
+            <li><strong>Šírka zbernice (bus width)</strong> — počet bitov prenášaných súčasne (paralelne). Napr. 8-bitová, 16-bitová, 32-bitová, 64-bitová. Čím širšia, tým viac dát naraz — ale širšie zbernice sú fyzicky rozmernejšie a drahšie</li>
+            <li><strong>Rýchlosť (frekvencia / taktovanie)</strong> — počet prenosových cyklov za sekundu (MHz / GHz). Napr. FSB 800 MHz, PCIe 3.0 = 8 GT/s (gigabaud za sekundu)</li>
+            <li><strong>Prenosová kapacita (bandwidth / priepustnosť)</strong> — množstvo dát prenesených za sekundu:
+              <br><code style="font-family:'Space Mono',monospace;background:rgba(0,229,255,0.1);padding:2px 8px;border-radius:3px;color:var(--accent)">Bandwidth = Šírka (bajty) × Frekvencia (Hz)</code>
+              <br>Príklad: DDR4-3200 = 8 bajtov × 3 200 000 000 Hz = <strong>25,6 GB/s</strong></li>
+          </ul>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 2b</div>
+          <h3>Popíšte základné druhy zberníc základnej dosky a ich úlohu.</h3>
+          <ul>
+            <li><strong>Systémová zbernica (Front Side Bus / QPI / HyperTransport)</strong> — prepája CPU s čipsetom (alebo priamo s RAM). Najrýchlejšia zbernica v systéme. Dnes nahradená priamym prepojením CPU↔RAM (IMC integrovaný v CPU)</li>
+            <li><strong>Pamäťová zbernica (Memory Bus)</strong> — prepája CPU (IMC) s operačnou pamäťou DDR. Šírka 64 bitov (128 bitov pri dual-channel)</li>
+            <li><strong>PCIe (PCI Express)</strong> — sériová zbernica pre grafické karty, NVMe SSD, sieťové karty. Verzie 3.0 / 4.0 / 5.0 (každá generácia zdvojnásobuje rýchlosť)</li>
+            <li><strong>DMI (Direct Media Interface)</strong> — zbernica medzi CPU a čipsetom PCH. Intel; PCIe 4.0 ×8 = ~16 GB/s</li>
+            <li><strong>SATA (Serial ATA)</strong> — zbernica pre pevné disky a optické mechaniky; max. 6 Gb/s (SATA III)</li>
+            <li><strong>USB (Universal Serial Bus)</strong> — externá zbernica pre periférie; USB 3.2 Gen2×2 = 20 Gb/s; USB4 = 40 Gb/s</li>
+            <li><strong>I²C / SPI</strong> — pomalé interné zbernice pre komunikáciu s BIOS čipom, senzormi, VRM</li>
+            <li><strong>LPC (Low Pin Count)</strong> — stará zbernica pre BIOS a SuperI/O čip (klávesnica, myš); dnes nahradená SPI/eSPI</li>
+          </ul>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 2c</div>
+          <h3>Popíšte funkciu čipsetov matičnej dosky počítača.</h3>
+          <div class="info-box">
+            <p><strong>Čipset (chipset)</strong> je sada integrovaných obvodov na matičnej doske, ktoré riadia tok dát medzi procesorom, pamäťou, zberniciami a perifériami. Plní úlohu "dopravného uzla" celého systému.</p>
+          </div>
+          <p>Historicky sa čipset skladal z dvoch čipov:</p>
+          <ul>
+            <li><strong>Northbridge (severný most)</strong> — rýchle komponenty: CPU ↔ RAM, PCIe (grafika). Dnes integrovaný priamo do CPU (Intel od Nehalem 2008, AMD od K8 2003)</li>
+            <li><strong>Southbridge (južný most)</strong> — pomalšie periférie: SATA, USB, PCI, audio, BIOS, LAN. Dnes označovaný ako <strong>PCH (Platform Controller Hub)</strong> — Intel, alebo <strong>FCH (Fusion Controller Hub)</strong> — AMD</li>
+          </ul>
+          <p style="margin-top:0.75rem">Moderný čipset (PCH) zabezpečuje:</p>
+          <ul>
+            <li>Správu SATA portov a USB radičov</li>
+            <li>Ďalšie PCIe linky (pre M.2, NVMe, sieťovú kartu)</li>
+            <li>Komunikáciu s BIOS/UEFI čipom</li>
+            <li>Integrovanú sieťovú kartu (Intel I219-V, I225-V)</li>
+            <li>Integrovaný zvukový kodek (Realtek ALC)</li>
+            <li>Tepelný a napäťový monitoring (ACPI)</li>
+          </ul>
+          <p style="margin-top:0.5rem;color:var(--muted);font-size:0.85rem">Príklady čipsetov: Intel Z790, B760, H770 (pre 12./13./14. gen); AMD X670E, B650, A620 (pre Ryzen 7000)</p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 3</span>
+        <span class="uloha-title">PCIe vs PCI vs systémová, architektúry počítačov, cache</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 3a</div>
+          <h3>Porovnajte zbernice: systémová, PCI a PCI Express.</h3>
+          <div style="overflow-x:auto">
+            <table class="comp-table" style="min-width:600px">
+              <thead>
+                <tr><th>Vlastnosť</th><th>Systémová (FSB)</th><th>PCI</th><th>PCI Express (PCIe)</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong style="color:#fff">Typ prenosu</strong></td>
+                  <td>Paralelná</td>
+                  <td>Paralelná</td>
+                  <td><span class="tag-plus">Sériová</span> (diferenciálne páry)</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Šírka</strong></td>
+                  <td>64 bitov</td>
+                  <td>32 / 64 bitov</td>
+                  <td>×1, ×4, ×8, ×16 liniek (každá 1 bit sériovo)</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Max. rýchlosť</strong></td>
+                  <td>~12,8 GB/s (FSB 1600)</td>
+                  <td>133 MB/s (PCI 33MHz/32bit)</td>
+                  <td>PCIe 5.0 ×16 = <span class="tag-plus">~126 GB/s</span></td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Topológia</strong></td>
+                  <td>Zdieľaná zbernica (všetci zdieľajú)</td>
+                  <td>Zdieľaná zbernica</td>
+                  <td><span class="tag-plus">Point-to-point</span> (dedikované spojenie)</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Spätná kompatibilita</strong></td>
+                  <td>—</td>
+                  <td>Nie s PCIe</td>
+                  <td><span class="tag-plus">Áno</span> — PCIe 5.0 slot akceptuje PCIe 3.0 kartu</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Hot-plug</strong></td>
+                  <td>Nie</td>
+                  <td>Nie</td>
+                  <td><span class="tag-plus">Áno</span> (niektoré konfigurácie)</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Použitie</strong></td>
+                  <td>CPU↔RAM, CPU↔Chipset (dnes nahradené)</td>
+                  <td>Staré karty — zvuk, sieť, TV tunery (legacy)</td>
+                  <td>GPU, NVMe SSD, sieťové karty, Thunderbolt, USB4</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:#fff">Verzie</strong></td>
+                  <td>FSB → QPI → DMI</td>
+                  <td>PCI 2.x (33/66 MHz)</td>
+                  <td>PCIe 1.0 → 2.0 → 3.0 → 4.0 → 5.0 → 6.0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 3b</div>
+          <h3>Porovnajte Princetonskú a Harvardskú architektúru počítačov.</h3>
+          <div class="kabel-grid">
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; Princetská architektúra (von Neumann)</div>
+              <div style="padding:1rem;font-size:0.88rem;color:#c8c8de;line-height:1.8">
+                <p style="margin-bottom:0.5rem">Navrhnutá Johnom von Neumannom (1945). Programové inštrukcie aj dáta sú uložené v <strong>jednej spoločnej pamäti</strong> a prenášané po <strong>jednej zbernici</strong>.</p>
+                <ul style="padding-left:1.2rem">
+                  <li>Jednoduchší návrh, lacnejší</li>
+                  <li><span class="tag-minus">Von Neumannov bottleneck</span> — súťaž inštrukcií a dát o zbernici spomaľuje systém</li>
+                  <li>Ľahká zmena programu (program je len dáta v pamäti)</li>
+                  <li>Použitie: <strong>desktopové PC, notebooky, servery</strong> (x86 architektúra)</li>
+                </ul>
+                <div style="margin-top:0.75rem;font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center">
+                  CPU ←── jedna zbernica ──→ [Pamäť: kód + dáta]
+                </div>
+              </div>
+            </div>
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; Harvardská architektúra</div>
+              <div style="padding:1rem;font-size:0.88rem;color:#c8c8de;line-height:1.8">
+                <p style="margin-bottom:0.5rem">Programové inštrukcie a dáta sú uložené v <strong>oddelených pamätiach</strong> prepojených <strong>samostatnými zberniciami</strong> s CPU.</p>
+                <ul style="padding-left:1.2rem">
+                  <li><span class="tag-plus">Paralelný prístup</span> k inštrukciám aj dátam súčasne = rýchlejší pipeline</li>
+                  <li>Zložitejší hardvér</li>
+                  <li>Bezpečnejšia — kód nemôže byť prepísaný ako dáta</li>
+                  <li>Použitie: <strong>mikrokontroléry (AVR, PIC, ARM Cortex-M), DSP procesory, cache L1 v moderných CPU</strong></li>
+                </ul>
+                <div style="margin-top:0.75rem;font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center">
+                  CPU ←─ zbernica 1 ─→ [Pamäť inštrukcií]<br>
+                  CPU ←─ zbernica 2 ─→ [Pamäť dát]
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top:1rem">
+            <p><strong>Moderné CPU</strong> (x86) používajú <em>modifikovanú Harvardskú architektúru</em> — navonok sú von Neumann (jedna adresná pamäť), ale vnútorne majú oddelenú L1 cache pre inštrukcie (L1i) a dáta (L1d) — najlepšie z oboch svetov.</p>
+          </div>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 3c</div>
+          <h3>Vysvetlite význam pamäte cache u mikroprocesorov.</h3>
+          <div class="info-box">
+            <p><strong>Cache pamäť</strong> je veľmi rýchla (a drahá) vyrovnávacia pamäť integrovaná priamo v procesore, ktorá uchováva kópie najčastejšie používaných dát a inštrukcií z pomalšej operačnej pamäte (RAM). Znižuje tzv. <em>memory latency bottleneck</em>.</p>
+          </div>
+          <p>Prečo je cache nutná: CPU pracuje na frekvencii 3–5 GHz, RAM má latenciu ~60–100 ns — procesor by čakal stovky cyklov pri každom prístupe do RAM. Cache redukuje priemerný čas prístupu na 1–10 cyklov.</p>
+
+          <p style="margin-top:0.75rem;margin-bottom:0.5rem"><strong style="color:#fff">Úrovne cache (hierarchia):</strong></p>
+          <table class="comp-table">
+            <thead>
+              <tr><th>Úroveň</th><th>Veľkosť</th><th>Latencia</th><th>Umiestnenie</th><th>Popis</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:var(--green)">L1</strong></td>
+                <td>32–128 KB / jadro</td>
+                <td>~1–4 cyklov (~0,5 ns)</td>
+                <td>Priamo v jadre</td>
+                <td>Najrýchlejšia. Oddelená na L1i (inštrukcie) a L1d (dáta) — Harvardský princíp</td>
+              </tr>
+              <tr>
+                <td><strong style="color:var(--accent)">L2</strong></td>
+                <td>256 KB – 4 MB / jadro</td>
+                <td>~10–15 cyklov (~3 ns)</td>
+                <td>Blízko jadra</td>
+                <td>Záloha L1; väčšia ale pomalšia. Každé jadro má svoju L2</td>
+              </tr>
+              <tr>
+                <td><strong style="color:var(--accent2)">L3</strong></td>
+                <td>8–96 MB (zdieľaná)</td>
+                <td>~30–50 cyklov (~10 ns)</td>
+                <td>Zdieľaná všetkými jadrami</td>
+                <td>Najväčšia cache. Zdieľaná medzi všetkými jadrami CPU. Kľúčová pre multi-core výkon</td>
+              </tr>
+              <tr>
+                <td><strong style="color:var(--muted)">RAM</strong></td>
+                <td>8–128 GB</td>
+                <td>~60–100 ns (~200+ cyklov)</td>
+                <td>DIMM slot</td>
+                <td>Operačná pamäť — porovnanie pre kontext</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p style="margin-top:1rem">Princíp fungovania cache:</p>
+          <ul>
+            <li><strong>Cache hit</strong> — hľadané dáta sú v cache → rýchly prístup bez čakania</li>
+            <li><strong>Cache miss</strong> — dáta nie sú v cache → musia sa načítať z RAM (pomalé); cache sa aktualizuje</li>
+            <li><strong>Hit rate</strong> — percento úspešných zásahov; dobrá cache dosahuje 90–99 % hit rate</li>
+            <li><strong>Lokalita prístupu</strong> — cache funguje dobre vďaka časovej lokalite (opakovane používané dáta) a priestorovej lokalite (susedné dáta v pamäti)</li>
+          </ul>
         </div>
 
       </div>
