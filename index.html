@@ -1,289 +1,650 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Počítačové siete – DÚ</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0a0a0f;
-      --surface: #12121a;
-      --border: #1e1e2e;
-      --accent: #00e5ff;
-      --accent2: #ff6b35;
-      --text: #e8e8f0;
-      --muted: #6b6b88;
-      --green: #39ff85;
-      --card: #15151f;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Syne', sans-serif;
-      font-size: 16px;
-      line-height: 1.7;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
-    }
-    header {
-      position: relative;
-      z-index: 10;
-      padding: 3rem 2rem 2rem;
-      max-width: 960px;
-      margin: 0 auto;
-      border-bottom: 1px solid var(--border);
-    }
-    .badge {
-      display: inline-block;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--accent);
-      border: 1px solid var(--accent);
-      padding: 2px 10px;
-      border-radius: 2px;
-      letter-spacing: 0.15em;
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-    }
-    h1 {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      color: #fff;
-    }
-    h1 span { color: var(--accent); }
-    .subtitle {
-      margin-top: 0.75rem;
-      color: var(--muted);
-      font-size: 1rem;
-      font-family: 'Space Mono', monospace;
-    }
-    nav {
-      position: relative;
-      z-index: 10;
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 1.5rem 2rem;
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      border-bottom: 1px solid var(--border);
-    }
-    nav a {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--muted);
-      text-decoration: none;
-      padding: 6px 14px;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      transition: all 0.2s ease;
-      letter-spacing: 0.05em;
-    }
-    nav a:hover, nav a.active {
-      color: var(--accent);
-      border-color: var(--accent);
-      background: rgba(0,229,255,0.05);
-    }
-    main {
-      position: relative;
-      z-index: 10;
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-    .tema { display: none; animation: fadeIn 0.4s ease; }
-    .tema.visible { display: block; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .uloha {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-bottom: 2rem;
-      overflow: hidden;
-    }
-    .uloha-header {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1.25rem 1.5rem;
-      cursor: pointer;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-      user-select: none;
-      transition: background 0.2s;
-    }
-    .uloha-header:hover { background: #1a1a28; }
-    .uloha-num {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--accent2);
-      background: rgba(255,107,53,0.1);
-      border: 1px solid rgba(255,107,53,0.3);
-      padding: 2px 10px;
-      border-radius: 2px;
-      white-space: nowrap;
-    }
-    .uloha-title { flex: 1; font-weight: 600; font-size: 1rem; color: #fff; }
-    .uloha-toggle {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.85rem;
-      color: var(--muted);
-      transition: transform 0.3s;
-    }
-    .uloha.open .uloha-toggle { transform: rotate(180deg); }
-    .uloha-body {
-      padding: 0 1.5rem;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease, padding 0.3s ease;
-    }
-    .uloha.open .uloha-body { max-height: 5000px; padding: 1.5rem; }
-    .otazka {
-      margin-bottom: 2rem;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid var(--border);
-    }
-    .otazka:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .otazka-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--green);
-      margin-bottom: 0.5rem;
-      letter-spacing: 0.1em;
-    }
-    .otazka h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin-bottom: 1rem;
-      line-height: 1.4;
-    }
-    .otazka p, .otazka li { color: #c8c8de; font-size: 0.95rem; line-height: 1.8; }
-    .otazka ul, .otazka ol { padding-left: 1.5rem; margin-top: 0.5rem; }
-    .otazka li { margin-bottom: 0.4rem; }
-    .info-box {
-      background: rgba(0,229,255,0.04);
-      border-left: 3px solid var(--accent);
-      padding: 1rem 1.25rem;
-      border-radius: 0 6px 6px 0;
-      margin: 1rem 0;
-    }
-    .info-box p { color: var(--text); }
-    .kabel-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      margin-top: 1rem;
-    }
-    @media (max-width: 600px) { .kabel-grid { grid-template-columns: 1fr; } }
-    .kabel-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      overflow: hidden;
-    }
-    .kabel-card-title {
-      background: var(--surface);
-      padding: 0.6rem 1rem;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--accent2);
-      border-bottom: 1px solid var(--border);
-    }
-    .kabel-pins { padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 4px; }
-    .pin-row { display: flex; align-items: center; gap: 10px; font-family: 'Space Mono', monospace; font-size: 0.78rem; }
-    .pin-num { width: 20px; text-align: right; color: var(--muted); flex-shrink: 0; }
-    .pin-wire { display: inline-block; padding: 2px 10px; border-radius: 3px; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.03em; }
-    .w-bo { background:#ff8c00; color:#000; }
-    .w-o  { background:#ff6600; color:#fff; }
-    .w-bz { background:#27ae60; color:#fff; }
-    .w-z  { background:#1a7a40; color:#fff; }
-    .w-bm { background:#2980b9; color:#fff; }
-    .w-m  { background:#1a5fa0; color:#fff; }
-    .w-bh { background:#8b5cf6; color:#fff; }
-    .w-h  { background:#6d3fc4; color:#fff; }
-    .comp-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 1rem; }
-    .comp-table th {
-      background: var(--surface);
-      color: var(--accent);
-      font-family: 'Space Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      padding: 0.6rem 1rem;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-    .comp-table td {
-      padding: 0.65rem 1rem;
-      border-bottom: 1px solid var(--border);
-      vertical-align: top;
-      color: #c8c8de;
-    }
-    .comp-table tr:last-child td { border-bottom: none; }
-    .comp-table tr:hover td { background: rgba(255,255,255,0.02); }
-    .tag-plus  { color: var(--green); font-weight: 700; }
-    .tag-minus { color: #ff4d6a; font-weight: 700; }
-    footer {
-      position: relative;
-      z-index: 10;
-      max-width: 960px;
-      margin: 3rem auto 0;
-      padding: 1.5rem 2rem;
-      border-top: 1px solid var(--border);
-      font-family: 'Space Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--muted);
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    @media (max-width: 640px) {
-      header, nav, main { padding-left: 1rem; padding-right: 1rem; }
-      h1 { font-size: 1.8rem; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SYS://POCITACOVE_SIETE.EXE — DÚ Terminál</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #05050a;
+    --bg-2: #0a0a14;
+    --panel: #0d0d1a;
+    --panel-2: #12121f;
+    --border: #1f1f35;
+    --border-bright: #2a2a4a;
+    --grid: rgba(0, 255, 200, 0.06);
+    --neon: #00ffc8;
+    --neon-2: #ff2e6b;
+    --neon-3: #ffcc00;
+    --neon-4: #7b61ff;
+    --text: #e0e0ff;
+    --muted: #5a5a7a;
+    --scan: rgba(0, 255, 200, 0.03);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.65;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ═══════════ ANIMATED BACKGROUND ═══════════ */
+  .bg-grid {
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridShift 20s linear infinite;
+    pointer-events: none; z-index: 0;
+  }
+  @keyframes gridShift {
+    0% { background-position: 0 0, 0 0; }
+    100% { background-position: 50px 50px, 50px 50px; }
+  }
+
+  .bg-scanlines {
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 2px,
+      var(--scan) 2px,
+      var(--scan) 3px
+    );
+    pointer-events: none; z-index: 1;
+    animation: scanlineFlicker 0.1s linear infinite;
+  }
+  @keyframes scanlineFlicker {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+
+  .bg-glow {
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.15;
+    pointer-events: none; z-index: 0;
+    animation: glowFloat 20s ease-in-out infinite;
+  }
+  .bg-glow.a { background: var(--neon); top: -200px; left: -200px; }
+  .bg-glow.b { background: var(--neon-2); bottom: -200px; right: -200px; animation-delay: -10s; }
+  .bg-glow.c { background: var(--neon-4); top: 50%; left: 50%; animation-delay: -5s; }
+  @keyframes glowFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(100px, -50px) scale(1.2); }
+    66%      { transform: translate(-80px, 80px) scale(0.9); }
+  }
+
+  /* Floating binary particles */
+  .binary-rain {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 2;
+    overflow: hidden;
+  }
+  .bit {
+    position: absolute;
+    color: var(--neon);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    opacity: 0;
+    animation: bitFall linear infinite;
+    text-shadow: 0 0 8px var(--neon);
+  }
+  @keyframes bitFall {
+    0%   { transform: translateY(-20px); opacity: 0; }
+    10%  { opacity: 0.6; }
+    90%  { opacity: 0.6; }
+    100% { transform: translateY(100vh); opacity: 0; }
+  }
+
+  /* ═══════════ PC CHASSIS HEADER ═══════════ */
+  .pc-boot {
+    position: relative; z-index: 10;
+    max-width: 1100px;
+    margin: 2rem auto 0;
+    padding: 0 1.5rem;
+  }
+
+  .pc-chassis {
+    background: linear-gradient(135deg, var(--panel) 0%, var(--panel-2) 100%);
+    border: 2px solid var(--border-bright);
+    border-radius: 4px;
+    padding: 1.2rem 1.5rem;
+    position: relative;
+    box-shadow:
+      0 0 30px rgba(0, 255, 200, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+  }
+
+  .pc-chassis::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon), transparent);
+    animation: topScan 4s ease-in-out infinite;
+  }
+  @keyframes topScan {
+    0%, 100% { opacity: 0.3; transform: translateX(-100%); }
+    50% { opacity: 1; transform: translateX(100%); }
+  }
+
+  .pc-leds {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .led {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    animation: ledBlink 2s ease-in-out infinite;
+  }
+  .led.pwr { background: var(--neon-2); box-shadow: 0 0 8px var(--neon-2); }
+  .led.hdd { background: var(--neon-3); box-shadow: 0 0 8px var(--neon-3); animation-delay: 0.3s; }
+  .led.net { background: var(--neon); box-shadow: 0 0 8px var(--neon); animation-delay: 0.7s; }
+  @keyframes ledBlink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.3; }
+  }
+
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    color: var(--text);
+    position: relative;
+  }
+  h1 .glitch {
+    color: var(--neon);
+    text-shadow:
+      0 0 10px var(--neon),
+      2px 0 0 var(--neon-2),
+      -2px 0 0 var(--neon-4);
+    animation: glitchText 4s ease-in-out infinite;
+    display: inline-block;
+  }
+  @keyframes glitchText {
+    0%, 100%   { text-shadow: 0 0 10px var(--neon), 2px 0 0 var(--neon-2), -2px 0 0 var(--neon-4); }
+    20%        { text-shadow: 0 0 10px var(--neon), -3px 0 0 var(--neon-2), 3px 0 0 var(--neon-4); }
+    40%        { text-shadow: 0 0 10px var(--neon), 1px 0 0 var(--neon-2), -1px 0 0 var(--neon-4); transform: translateX(1px); }
+    60%        { text-shadow: 0 0 10px var(--neon), -2px 0 0 var(--neon-2), 2px 0 0 var(--neon-4); transform: translateX(-1px); }
+  }
+
+  .terminal-line {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+  .terminal-line .prompt { color: var(--neon); }
+  .terminal-line .cmd { color: var(--text); }
+  .terminal-line .cursor {
+    display: inline-block; width: 8px; height: 14px;
+    background: var(--neon); margin-left: 2px;
+    vertical-align: middle;
+    animation: cursorBlink 1s steps(2) infinite;
+  }
+  @keyframes cursorBlink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+
+  .stats-bar {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .stat {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: rgba(0, 255, 200, 0.02);
+  }
+  .stat .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--neon);
+    box-shadow: 0 0 6px var(--neon);
+    animation: ledBlink 1.5s ease-in-out infinite;
+  }
+  .stat b { color: var(--neon); font-weight: 500; }
+
+  /* ═══════════ NAV / THEME TABS ═══════════ */
+  nav {
+    position: relative; z-index: 10;
+    max-width: 1100px;
+    margin: 1rem auto 0;
+    padding: 0 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  nav a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 8px 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.03em;
+    overflow: hidden;
+  }
+  nav a::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0; width: 2px;
+    background: var(--neon);
+    transform: scaleY(0);
+    transition: transform 0.25s ease;
+    transform-origin: bottom;
+  }
+  nav a:hover {
+    color: var(--text);
+    border-color: var(--neon);
+    background: var(--panel-2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 255, 200, 0.15);
+  }
+  nav a:hover::before { transform: scaleY(1); transform-origin: top; }
+  nav a.active {
+    color: var(--bg);
+    background: var(--neon);
+    border-color: var(--neon);
+    font-weight: 700;
+    box-shadow: 0 0 20px rgba(0, 255, 200, 0.4);
+  }
+
+  /* ═══════════ MAIN ═══════════ */
+  main {
+    position: relative; z-index: 10;
+    max-width: 1100px;
+    margin: 2rem auto 4rem;
+    padding: 0 1.5rem;
+  }
+
+  .tema {
+    display: none;
+    animation: temaLoad 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .tema.visible { display: block; }
+  @keyframes temaLoad {
+    0%   { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+    100% { opacity: 1; transform: translateY(0);    filter: blur(0); }
+  }
+
+  /* ═══════════ ULOHA (MODULE) ═══════════ */
+  .uloha {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--neon);
+    border-radius: 2px;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+    position: relative;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .uloha:hover {
+    border-color: var(--border-bright);
+    border-left-color: var(--neon);
+    box-shadow: 0 0 20px rgba(0, 255, 200, 0.1);
+  }
+
+  .uloha-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    background: var(--panel-2);
+    user-select: none;
+    transition: background 0.2s ease;
+    position: relative;
+    border-bottom: 1px solid transparent;
+  }
+  .uloha.open .uloha-header { border-bottom-color: var(--border); }
+  .uloha-header:hover { background: #15152a; }
+  .uloha-header::before {
+    content: '▶';
+    color: var(--neon);
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+  }
+  .uloha.open .uloha-header::before { transform: rotate(90deg); }
+
+  .uloha-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--neon-2);
+    background: rgba(255, 46, 107, 0.08);
+    border: 1px solid rgba(255, 46, 107, 0.3);
+    padding: 3px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .uloha-title {
+    flex: 1;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .uloha-toggle { display: none; }
+
+  .uloha-body {
+    padding: 0 1.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s ease;
+  }
+  .uloha.open .uloha-body { max-height: 20000px; padding: 1.5rem; }
+
+  /* ═══════════ OTAZKA ═══════════ */
+  .otazka {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px dashed var(--border);
+    position: relative;
+  }
+  .otazka:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+
+  .otazka-label {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--neon-3);
+    background: rgba(255, 204, 0, 0.06);
+    border: 1px solid rgba(255, 204, 0, 0.2);
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.15em;
+    font-weight: 500;
+  }
+
+  .otazka h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--neon);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+
+  .otazka p, .otazka li {
+    color: #bfbfdc;
+    font-size: 0.88rem;
+    line-height: 1.75;
+  }
+  .otazka ul, .otazka ol { padding-left: 1.3rem; margin-top: 0.5rem; }
+  .otazka ul ul { margin-top: 0.25rem; }
+  .otazka li { margin-bottom: 0.4rem; }
+  .otazka strong { color: var(--text); }
+
+  .otazka code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: rgba(0, 255, 200, 0.08);
+    border: 1px solid rgba(0, 255, 200, 0.2);
+    padding: 1px 6px;
+    border-radius: 2px;
+    color: var(--neon);
+  }
+
+  /* ═══════════ INFO BOX ═══════════ */
+  .info-box {
+    background: linear-gradient(135deg, rgba(0, 255, 200, 0.04) 0%, rgba(123, 97, 255, 0.04) 100%);
+    border: 1px solid rgba(0, 255, 200, 0.2);
+    border-left: 3px solid var(--neon);
+    padding: 1rem 1.2rem;
+    border-radius: 2px;
+    margin: 1rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .info-box::before {
+    content: '// INFO';
+    position: absolute;
+    top: 6px; right: 10px;
+    font-size: 0.6rem;
+    color: var(--neon);
+    letter-spacing: 0.15em;
+    opacity: 0.5;
+  }
+  .info-box p { color: var(--text); font-size: 0.88rem; }
+
+  /* ═══════════ KABEL / CARD GRID ═══════════ */
+  .kabel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .kabel-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .kabel-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--neon);
+  }
+
+  .kabel-card-title {
+    background: var(--panel-2);
+    padding: 0.6rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--neon-2);
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.05em;
+  }
+
+  .kabel-pins {
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .pin-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    transition: background 0.15s ease;
+    padding: 2px 4px;
+    border-radius: 2px;
+  }
+  .pin-row:hover { background: rgba(0, 255, 200, 0.05); }
+
+  .pin-num {
+    width: 22px; text-align: right;
+    color: var(--muted);
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .pin-wire {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 2px;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    min-width: 36px;
+    text-align: center;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .w-bo { background: #ff8c00; color: #000; }
+  .w-o  { background: #ff6600; color: #fff; }
+  .w-bz { background: #27ae60; color: #fff; }
+  .w-z  { background: #1a7a40; color: #fff; }
+  .w-bm { background: #2980b9; color: #fff; }
+  .w-m  { background: #1a5fa0; color: #fff; }
+  .w-bh { background: #8b5cf6; color: #fff; }
+  .w-h  { background: #6d3fc4; color: #fff; }
+
+  /* ═══════════ COMPARISON TABLE ═══════════ */
+  .comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-top: 1rem;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+  }
+  .comp-table th {
+    background: var(--panel-2);
+    color: var(--neon);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.7rem 1rem;
+    text-align: left;
+    border-bottom: 2px solid var(--neon);
+    text-transform: uppercase;
+  }
+  .comp-table td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: #bfbfdc;
+  }
+  .comp-table tr:last-child td { border-bottom: 0; }
+  .comp-table tr { transition: background 0.15s ease; }
+  .comp-table tbody tr:hover { background: rgba(0, 255, 200, 0.03); }
+
+  .tag-plus  { color: var(--neon); font-weight: 700; }
+  .tag-minus { color: var(--neon-2); font-weight: 700; }
+
+  /* ═══════════ FOOTER ═══════════ */
+  footer {
+    position: relative; z-index: 10;
+    max-width: 1100px;
+    margin: 3rem auto 0;
+    padding: 1.5rem 1.5rem 2rem;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  footer .sys-info { color: var(--neon); opacity: 0.7; }
+
+  /* ═══════════ MOBILE ═══════════ */
+  @media (max-width: 640px) {
+    body { font-size: 13px; }
+    nav { padding: 0 1rem; gap: 0.35rem; }
+    nav a { font-size: 0.65rem; padding: 7px 10px; }
+    .pc-boot, main, footer { padding-left: 1rem; padding-right: 1rem; }
+    .uloha-body { padding-left: 1rem; padding-right: 1rem; }
+    .uloha.open .uloha-body { padding: 1rem; }
+    h1 { font-size: 1.6rem; }
+    .uloha-header { padding: 0.8rem 1rem; gap: 0.5rem; }
+    .uloha-title { font-size: 0.8rem; }
+    .uloha-num { font-size: 0.6rem; padding: 2px 7px; }
+  }
+
+  /* ═══════════ SELECTION ═══════════ */
+  ::selection { background: var(--neon); color: var(--bg); }
+
+  /* ═══════════ SCROLLBAR ═══════════ */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-bright);
+    border: 2px solid var(--bg);
+    border-radius: 5px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--neon); }
+</style>
 </head>
 <body>
 
-<header>
-  <div class="badge">// Počítačové siete</div>
-  <h1>Domáce <span>Úlohy</span></h1>
-  <p class="subtitle">$ sieťové_technológie &mdash; INF / interaktívny_zborník</p>
-</header>
+<!-- Background Layers -->
+<div class="bg-grid"></div>
+<div class="bg-glow a"></div>
+<div class="bg-glow b"></div>
+<div class="bg-glow c"></div>
+<div class="bg-scanlines"></div>
+<div class="binary-rain" id="binary-rain"></div>
 
-<nav>
-  <a href="#" class="active" data-tema="1">Téma 1 — Základy sietí</a>
-  <a href="#" data-tema="2">Téma 2 — Káble a kabeláž</a>
-  <a href="#" data-tema="3">Téma 3 — Číselné sústavy &amp; IP</a>
-  <a href="#" data-tema="4">Téma 4 — Logické obvody</a>
-  <a href="#" data-tema="5">Téma 5 — Internet &amp; komunikácia</a>
-  <a href="#" data-tema="6">Téma 6 — Obraz &amp; grafika</a>
-  <a href="#" data-tema="7">Téma 7 — Monitory &amp; video</a>
-  <a href="#" data-tema="8">Téma 8 — Smerovanie</a>
-  <a href="#" data-tema="9">Téma 9 — Matičná doska &amp; CPU</a>
+<!-- ═══════════════════ PC CHASSIS HEADER ═══════════════════ -->
+<div class="pc-boot">
+  <div class="pc-chassis">
+    <div class="pc-leds">
+      <span class="led pwr" title="Power"></span>
+      <span class="led hdd" title="Disk Activity"></span>
+      <span class="led net" title="Network"></span>
+    </div>
+    <h1>POČÍTAČOVÉ <span class="glitch">SIETE</span>_</h1>
+    <div class="terminal-line">
+      <span class="prompt">root@sps-levoca</span>:<span class="cmd">~/du/inf</span>$ cat maturitne_temy.db <span class="cursor"></span>
+    </div>
+    <div class="stats-bar">
+      <span class="stat"><span class="dot"></span>STATUS: <b>ONLINE</b></span>
+      <span class="stat">TÉMY: <b id="stat-temy">10</b></span>
+      <span class="stat">MODULOV: <b id="stat-uloh">30+</b></span>
+      <span class="stat">REV: <b>v2.4</b></span>
+      <span class="stat">UPTIME: <b id="uptime">00:00:00</b></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav id="main-nav">
+  <a href="#" class="active" data-tema="1">[01] Základy sietí</a>
+  <a href="#" data-tema="2">[02] Káble &amp; kabeláž</a>
+  <a href="#" data-tema="3">[03] Číselné sústavy</a>
+  <a href="#" data-tema="4">[04] Logické obvody</a>
+  <a href="#" data-tema="5">[05] Internet</a>
+  <a href="#" data-tema="6">[06] Obraz &amp; grafika</a>
+  <a href="#" data-tema="7">[07] Monitory &amp; video</a>
+  <a href="#" data-tema="8">[08] Smerovanie</a>
+  <a href="#" data-tema="9">[09] Matičná doska &amp; CPU</a>
+  <a href="#" data-tema="10">[10] Bezdrôtové siete</a>
 </nav>
 
+<!-- ═══════════════════ CONTENT (injected below) ═══════════════════ -->
 <main>
 
   <!-- TEMA 1 -->
@@ -2395,31 +2756,442 @@ Trace complete.</pre>
     </div>
   </section>
 
+
+  <!-- ═══════════════════ TÉMA 10 ═══════════════════ -->
+  <section class="tema" id="tema-10">
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 1</span>
+        <span class="uloha-title">WLAN — charakteristika, technológie a technické prostriedky</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 1a</div>
+          <h3>Charakterizujte bezdrôtové siete WLAN.</h3>
+          <div class="info-box">
+            <p><strong>WLAN (Wireless Local Area Network)</strong> je lokálna počítačová sieť, v ktorej sa zariadenia spájajú bezdrôtovo pomocou rádiových vĺn namiesto fyzických káblov. Funguje na princípe vysielania a príjmu elektromagnetického signálu na vyhradených frekvenčných pásmach.</p>
+          </div>
+          <p>Základné charakteristiky WLAN:</p>
+          <ul>
+            <li><strong>Frekvenčné pásma:</strong> 2,4 GHz (dlhší dosah, viac rušenia), 5 GHz (kratší dosah, vyššia rýchlosť, menej rušenia), 6 GHz (WiFi 6E/7 — nové pásmo, minimálne rušenie)</li>
+            <li><strong>Dosah:</strong> typicky 30–100 m v interiéri; vonku až 300 m (závisí od prekážok, antén a výkonu)</li>
+            <li><strong>Rýchlosť:</strong> od 11 Mb/s (WiFi 1) až po 46 Gb/s (WiFi 7 teoreticky)</li>
+            <li><strong>Štandard:</strong> IEEE 802.11 (rodina protokolov definovaných IEEE)</li>
+            <li><strong>Zdieľané médium:</strong> všetky zariadenia zdieľajú rovnaký frekvenčný kanál — potrebná prístupová metóda (CSMA/CA)</li>
+            <li><strong>Výhody:</strong> mobilita, jednoduchá inštalácia, bez káblov, škálovateľnosť</li>
+            <li><strong>Nevýhody:</strong> nižšia bezpečnosť ako kabeláž, rušenie, variabilná rýchlosť, vyššia latencia</li>
+          </ul>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 1b</div>
+          <h3>Popíšte základné technológie bezdrôtových sietí.</h3>
+          <table class="comp-table">
+            <thead>
+              <tr><th>Technológia</th><th>Dosah</th><th>Rýchlosť</th><th>Pásmo</th><th>Použitie</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#fff">WiFi (IEEE 802.11)</strong></td>
+                <td>30–300 m</td>
+                <td>11 Mb/s – 46 Gb/s</td>
+                <td>2,4 / 5 / 6 GHz</td>
+                <td>LAN v domácnostiach, firmách, verejné hotspoty</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Bluetooth (IEEE 802.15.1)</strong></td>
+                <td>1–100 m</td>
+                <td>1–50 Mb/s</td>
+                <td>2,4 GHz</td>
+                <td>Periférie (klávesnica, slúchadlá), PAN siete</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">Zigbee (IEEE 802.15.4)</strong></td>
+                <td>10–100 m</td>
+                <td>20–250 kb/s</td>
+                <td>2,4 GHz / 868/915 MHz</td>
+                <td>IoT, smart home, senzory, nízka spotreba</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">WiMAX (IEEE 802.16)</strong></td>
+                <td>až 50 km</td>
+                <td>až 1 Gb/s</td>
+                <td>2–66 GHz</td>
+                <td>Bezdrôtový internet na dlhé vzdialenosti (MAN/WAN)</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">LTE / 4G / 5G</strong></td>
+                <td>km (bunky)</td>
+                <td>10 Mb/s – 10 Gb/s</td>
+                <td>700 MHz – 100 GHz</td>
+                <td>Mobilný internet, mobilné dáta</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#fff">NFC</strong></td>
+                <td>&lt; 20 cm</td>
+                <td>106–424 kb/s</td>
+                <td>13,56 MHz</td>
+                <td>Bezkontaktné platby, karty, párovanie</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 1c</div>
+          <h3>Popíšte technické prostriedky bezdrôtových sietí — antény a prístupové body (AP).</h3>
+          <p><strong style="color:#fff">Antény:</strong></p>
+          <ul>
+            <li><strong>Všesmerová anténa (omnidirectional)</strong> — vysiela signál rovnomerne do všetkých smerov (360°). Používa sa v domácich routeroch a AP. Zisk typicky 2–9 dBi</li>
+            <li><strong>Smerová anténa (directional)</strong> — sústreďuje signál do úzkeho lúča v jednom smere. Väčší dosah, ale obmedzený uhol. Typy: Yagi, panel, patch anténa. Zisk 10–24 dBi. Použitie: point-to-point spoje medzi budovami</li>
+            <li><strong>Sektorová anténa</strong> — pokrýva sektor (napr. 60°, 90°, 120°). Kombinuje dosah smerovej a pokrytie všesmerovej. Používa sa v mobilných bunkách a väčších AP inštaláciách</li>
+            <li><strong>MIMO antény</strong> — Multiple Input Multiple Output; viacero antén súčasne pre zvýšenie priepustnosti (2×2, 4×4, 8×8 MIMO)</li>
+          </ul>
+          <p style="margin-top:0.75rem"><strong style="color:#fff">Prístupový bod (AP — Access Point):</strong></p>
+          <div class="info-box">
+            <p>AP je aktívne zariadenie, ktoré vytvára bezdrôtovú sieť (WLAN) a prepája bezdrôtových klientov s drôtovou LAN alebo internetom. Funguje ako "základňová stanica" WiFi siete.</p>
+          </div>
+          <ul>
+            <li><strong>SSID (Service Set Identifier)</strong> — názov bezdrôtovej siete, ktorý AP vysiela</li>
+            <li><strong>Kanály</strong> — AP vysiela na konkrétnom frekvenčnom kanáli (1–13 na 2,4 GHz; 36–177 na 5 GHz)</li>
+            <li><strong>Režimy AP:</strong> Root AP (pripojený k LAN), Repeater (zosilňuje signál), Bridge (spája dve siete), Mesh (vzájomné prepojenie AP bez káblov)</li>
+            <li><strong>PoE (Power over Ethernet)</strong> — napájanie AP cez ethernetový kábel; eliminuje potrebu samostatného napájacieho adaptéra</li>
+            <li>Príklady: Ubiquiti UniFi, Cisco Meraki, TP-Link Omada, Aruba</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 2</span>
+        <span class="uloha-title">Štandardy IEEE 802.11, zabezpečenie a bezpečnostné riziká</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 2a</div>
+          <h3>Popíšte štandardy a protokoly bezdrôtových sietí IEEE 802.11.</h3>
+          <div class="info-box">
+            <p><strong>IEEE 802.11</strong> je rodina štandardov definovaných inštitútom IEEE pre bezdrôtové siete WLAN. Každá verzia prináša vyššiu rýchlosť, efektivitu alebo nové pásma.</p>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="comp-table" style="min-width:620px">
+              <thead>
+                <tr><th>Štandard</th><th>Rok</th><th>Označenie</th><th>Pásmo</th><th>Max. rýchlosť</th><th>Kľúčová technológia</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">802.11</td>
+                  <td>1997</td>
+                  <td>WiFi 1</td>
+                  <td>2,4 GHz</td>
+                  <td>2 Mb/s</td>
+                  <td>Pôvodný štandard, FHSS/DSSS</td>
+                </tr>
+                <tr>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">802.11b</td>
+                  <td>1999</td>
+                  <td>WiFi 1</td>
+                  <td>2,4 GHz</td>
+                  <td>11 Mb/s</td>
+                  <td>DSSS, prvé rozšírené WiFi</td>
+                </tr>
+                <tr>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">802.11a</td>
+                  <td>1999</td>
+                  <td>WiFi 2</td>
+                  <td>5 GHz</td>
+                  <td>54 Mb/s</td>
+                  <td>OFDM, menej rušenia, kratší dosah</td>
+                </tr>
+                <tr>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">802.11g</td>
+                  <td>2003</td>
+                  <td>WiFi 3</td>
+                  <td>2,4 GHz</td>
+                  <td>54 Mb/s</td>
+                  <td>OFDM na 2,4 GHz, spätne kompatibilný s 802.11b</td>
+                </tr>
+                <tr>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">802.11n</td>
+                  <td>2009</td>
+                  <td>WiFi 4</td>
+                  <td>2,4 + 5 GHz</td>
+                  <td>600 Mb/s</td>
+                  <td><strong>MIMO</strong> (4×4), kanály 20/40 MHz, dual-band</td>
+                </tr>
+                <tr>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">802.11ac</td>
+                  <td>2013</td>
+                  <td>WiFi 5</td>
+                  <td>5 GHz</td>
+                  <td>6,9 Gb/s</td>
+                  <td><strong>MU-MIMO</strong>, 8×8 MIMO, kanály až 160 MHz, 256-QAM</td>
+                </tr>
+                <tr>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">802.11ax</td>
+                  <td>2019</td>
+                  <td><span class="tag-plus">WiFi 6/6E</span></td>
+                  <td>2,4 + 5 + 6 GHz</td>
+                  <td>9,6 Gb/s</td>
+                  <td><strong>OFDMA, BSS Coloring, Target Wake Time</strong>, lepší v hustých sieťach</td>
+                </tr>
+                <tr>
+                  <td style="font-family:'Space Mono',monospace;color:var(--accent)">802.11be</td>
+                  <td>2024</td>
+                  <td><span class="tag-plus">WiFi 7</span></td>
+                  <td>2,4 + 5 + 6 GHz</td>
+                  <td>46 Gb/s</td>
+                  <td><strong>Multi-Link Operation</strong>, 320 MHz kanály, 4096-QAM</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 2b</div>
+          <h3>Popíšte zabezpečenie bezdrôtových sietí.</h3>
+          <table class="comp-table">
+            <thead>
+              <tr><th>Protokol</th><th>Rok</th><th>Šifrovanie</th><th>Bezpečnosť</th><th>Poznámka</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#ff4d6a">WEP</strong></td>
+                <td>1997</td>
+                <td>RC4 (40/104 bit)</td>
+                <td><span class="tag-minus">Prelomený</span></td>
+                <td>Prvé WiFi šifrovanie. Prelomené do minút. <strong>Nikdy nepoužívať!</strong></td>
+              </tr>
+              <tr>
+                <td><strong style="color:var(--accent2)">WPA</strong></td>
+                <td>2003</td>
+                <td>TKIP (RC4)</td>
+                <td><span class="tag-minus">Slabé</span></td>
+                <td>Prechodné riešenie po prelomení WEP. TKIP má zraniteľnosti. Zastaralý.</td>
+              </tr>
+              <tr>
+                <td><strong style="color:var(--green)">WPA2</strong></td>
+                <td>2004</td>
+                <td>AES-CCMP (128 bit)</td>
+                <td><span class="tag-plus">Dobré</span></td>
+                <td>Dlhé roky štandard. Dve verzie: Personal (PSK) a Enterprise (802.1X/RADIUS). Zraniteľnosť KRACK (2017) — opraviteľná patchom</td>
+              </tr>
+              <tr>
+                <td><strong style="color:var(--green)">WPA3</strong></td>
+                <td>2018</td>
+                <td>AES-GCMP (192/256 bit)</td>
+                <td><span class="tag-plus">Najlepšie</span></td>
+                <td>SAE handshake (odolnosť voči dictionary útoku), Forward Secrecy, Enhanced Open pre verejné siete</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="margin-top:1rem">Ďalšie metódy zabezpečenia WLAN:</p>
+          <ul>
+            <li><strong>Skrytie SSID</strong> — AP nevysiela názov siete (slabá ochrana — SSID sa dá odhaliť pasívnym skenovaním)</li>
+            <li><strong>MAC filtrovanie</strong> — AP povolí pripojenie len zariadeniam so schválenou MAC adresou (slabé — MAC sa dá falšovať)</li>
+            <li><strong>802.1X / RADIUS</strong> — autentifikácia cez centrálny server; každý užívateľ má vlastné meno a heslo; firemné prostredie</li>
+            <li><strong>VPN nad WiFi</strong> — šifrovaný tunel pre všetku prevádzku, aj na nezabezpečených sieťach</li>
+            <li><strong>Zníženie vysielacieho výkonu</strong> — obmedzenie dosahu signálu mimo priestoru organizácie</li>
+          </ul>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 2c</div>
+          <h3>Popíšte bezpečnostné riziká bezdrôtových sietí.</h3>
+          <ul>
+            <li><strong>Odpočúvanie (Eavesdropping / Sniffing)</strong> — zachytávanie nešifrovanej prevádzky pomocou WiFi adaptéra v promiskuitnom režime (napr. nástroj Wireshark). Ohrozenie v otvorených sieťach bez šifrovania</li>
+            <li><strong>Man-in-the-Middle (MitM)</strong> — útočník sa vloží medzi klienta a AP, zachytáva a prípadne modifikuje prevádzku</li>
+            <li><strong>Evil Twin (falošný AP)</strong> — útočník vytvorí AP s rovnakým SSID ako legitímna sieť. Klienti sa pripoja na falošný AP bez vedomia. Útočník vidí všetku ich prevádzku</li>
+            <li><strong>Deauthentication útok (DoS)</strong> — útočník posiela falošné deauthentication rámce (IEEE 802.11), čím núti klientov odpájať sa od AP. Cieľ: zachytiť WPA handshake pre offline cracking hesla</li>
+            <li><strong>Slovníkový útok / Brute-force na WPA2</strong> — zachytí sa 4-way handshake a offline sa skúšajú heslá. Slabé heslá sú prelomiteľné rýchlo (GPU cracking)</li>
+            <li><strong>Rogue AP</strong> — neautorizovaný AP pripojený do firemnej LAN zamestnancom; obchádza bezpečnostné politiky</li>
+            <li><strong>Wardriving</strong> — jazda autom a skenovanie WiFi sietí s cieľom nájsť nezabezpečené siete</li>
+            <li><strong>KRACK (Key Reinstallation Attack)</strong> — zraniteľnosť WPA2 4-way handshaku (2017); opravená firmvérovými aktualizáciami</li>
+          </ul>
+          <div class="info-box" style="margin-top:1rem">
+            <p><strong>Ochrana:</strong> Používať WPA3 (alebo WPA2-AES), silné heslo (20+ znakov), aktualizovať firmware AP, používať VPN na verejných sieťach, zakázať WPS (WiFi Protected Setup — má zraniteľnosti).</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="uloha open">
+      <div class="uloha-header">
+        <span class="uloha-num">Úloha 3</span>
+        <span class="uloha-title">CSMA/CA a topológie WiFi sietí</span>
+        <span class="uloha-toggle">&#9660;</span>
+      </div>
+      <div class="uloha-body">
+
+        <div class="otazka">
+          <div class="otazka-label">// 3a</div>
+          <h3>Definujte prístupovú metódu CSMA/CA.</h3>
+          <div class="info-box">
+            <p><strong>CSMA/CA (Carrier Sense Multiple Access with Collision Avoidance)</strong> — Viacnásobný prístup s počúvaním nosiča a <em>predchádzaním</em> kolíziám. Je to prístupová metóda používaná v bezdrôtových sieťach IEEE 802.11 (WiFi) na 2. vrstve OSI (Data Link).</p>
+          </div>
+          <p>Prečo CSMA/CA a nie CSMA/CD (ako v Ethernete)?</p>
+          <p>V bezdrôtových sieťach zariadenie <strong>nedokáže súčasne vysielať a prijímať</strong> na rovnakej frekvencii — preto nemôže detekovať kolíziu počas vysielania (ako to robí CSMA/CD v Ethernete). Namiesto detekcie sa kolíziám <strong>predchádza</strong>.</p>
+
+          <p style="margin-top:0.75rem;margin-bottom:0.5rem"><strong style="color:#fff">Postup CSMA/CA (DCF — Distributed Coordination Function):</strong></p>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1rem 1.25rem;margin:0.75rem 0">
+            <div style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.88rem">
+              <div style="display:flex;gap:1rem;align-items:flex-start">
+                <span style="font-family:'Space Mono',monospace;color:var(--accent);font-size:0.8rem;min-width:30px">1.</span>
+                <p style="color:#c8c8de"><strong>Počúvaj médium (Carrier Sense)</strong> — stanica pred vysielaním počúva, či je kanál voľný (idle)</p>
+              </div>
+              <div style="display:flex;gap:1rem;align-items:flex-start">
+                <span style="font-family:'Space Mono',monospace;color:var(--accent);font-size:0.8rem;min-width:30px">2.</span>
+                <p style="color:#c8c8de"><strong>Kanál obsadený?</strong> — Čakaj, kým médium nezmlkne + počkaj DIFS (DCF Interframe Space ~34 µs)</p>
+              </div>
+              <div style="display:flex;gap:1rem;align-items:flex-start">
+                <span style="font-family:'Space Mono',monospace;color:var(--accent);font-size:0.8rem;min-width:30px">3.</span>
+                <p style="color:#c8c8de"><strong>Náhodný backoff</strong> — vyber náhodné číslo z okna (Contention Window) a počkaj toľko time slotov. Ak médium ostane voľné, odpočítaj. Ak sa obsadí, pozastav odpočítavanie</p>
+              </div>
+              <div style="display:flex;gap:1rem;align-items:flex-start">
+                <span style="font-family:'Space Mono',monospace;color:var(--accent);font-size:0.8rem;min-width:30px">4.</span>
+                <p style="color:#c8c8de"><strong>Vysielaj rámec</strong> — keď backoff dosiahne nulu a kanál je voľný, stanica začne vysielať</p>
+              </div>
+              <div style="display:flex;gap:1rem;align-items:flex-start">
+                <span style="font-family:'Space Mono',monospace;color:var(--accent);font-size:0.8rem;min-width:30px">5.</span>
+                <p style="color:#c8c8de"><strong>ACK potvrdenie</strong> — príjemca po SIFS (16 µs) odošle ACK potvrdenie. Ak ACK nepríde (kolízia), odosielateľ zdvojnásobí Contention Window a opakuje od kroku 3</p>
+              </div>
+            </div>
+          </div>
+
+          <p><strong>Voliteľný mechanizmus RTS/CTS</strong> (Request to Send / Clear to Send) — rieši problém skrytého uzla: stanica najprv pošle krátky RTS rámec, AP odpovedá CTS, čím "umlčí" všetky ostatné stanice počas prenosu dát. Znižuje kolízie v hustých sieťach.</p>
+        </div>
+
+        <div class="otazka">
+          <div class="otazka-label">// 3b</div>
+          <h3>Popíšte topológie: klient–AP a Ad Hoc.</h3>
+
+          <div class="kabel-grid">
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; Infraštrukturálna topológia (klient – AP)</div>
+              <div style="padding:1rem;font-size:0.88rem;color:#c8c8de;line-height:1.8">
+                <p style="margin-bottom:0.75rem">Nazývaná aj <strong>BSS (Basic Service Set)</strong>. Všetci klienti sa pripájajú k centrálnemu prístupovému bodu (AP), ktorý riadi komunikáciu.</p>
+                <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;margin:0.75rem 0;line-height:2">
+                  PC ──┐<br>
+                  Telefón ──┤──→ [AP] ──→ Router ──→ Internet<br>
+                  Laptop ──┘
+                </div>
+                <ul style="padding-left:1.2rem">
+                  <li>Klienti nekomunikujú priamo medzi sebou — vždy cez AP</li>
+                  <li>AP poskytuje SSID, autentifikáciu a DHCP (alebo prepája na router)</li>
+                  <li><strong>ESS (Extended Service Set)</strong> — viacero AP prepojených LAN kábľom (roaming medzi AP so rovnakým SSID)</li>
+                  <li><span class="tag-plus">Výhody:</span> centrálna správa, lepší dosah, bezpečnosť, škálovateľnosť</li>
+                  <li><span class="tag-minus">Nevýhody:</span> závislosť od AP; výpadok AP = výpadok siete</li>
+                  <li><strong>Použitie:</strong> domácnosti, firmy, školy, hotely, verejné WiFi</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="kabel-card">
+              <div class="kabel-card-title">&#9670; Ad Hoc topológia (IBSS)</div>
+              <div style="padding:1rem;font-size:0.88rem;color:#c8c8de;line-height:1.8">
+                <p style="margin-bottom:0.75rem">Nazývaná aj <strong>IBSS (Independent Basic Service Set)</strong>. Zariadenia komunikujú priamo medzi sebou bez prístupového bodu.</p>
+                <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;margin:0.75rem 0;line-height:2">
+                  PC ←──────────────→ Laptop<br>
+                  &nbsp;&nbsp;&nbsp;↑&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↑<br>
+                  Telefón ←──→ Tablet
+                </div>
+                <ul style="padding-left:1.2rem">
+                  <li>Každé zariadenie je súčasne klient aj "router" pre ostatné</li>
+                  <li>Nevyžaduje žiadnu infraštruktúru — okamžite funkčné</li>
+                  <li><span class="tag-plus">Výhody:</span> rýchle nasadenie, bez infraštruktúry, lacné</li>
+                  <li><span class="tag-minus">Nevýhody:</span> obmedzený dosah, bezpečnostné riziká, slabá škálovateľnosť, bez centrálnej správy</li>
+                  <li><strong>Použitie:</strong> dočasné siete (konferencie, záchranné akcie), gaming LAN, zdieľanie súborov medzi dvoma zariadeniami</li>
+                  <li><strong>Moderná alternatíva:</strong> WiFi Direct, Miracast, AirDrop — fungujú na podobnom princípe</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-box" style="margin-top:1.25rem">
+            <p><strong>Mesh sieť</strong> — moderná hybridná topológia: viacero AP (uzlov) sa bezdrôtovo prepájajú navzájom (backhaul) a každý slúži aj ako AP pre klientov. Kombinuje výhody infraštrukturálnej topológie a samoorganizácie Ad Hoc. Príklady: Google Nest, Eero, Ubiquiti AmpliFi.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer>
-  <span>Počítačové siete &middot; DÚ zborník</span>
-  <span>T568A &middot; T568B &middot; UTP &middot; STP &middot; FTTH</span>
+  <span class="sys-info">&gt; system_integrity: <b style="color:var(--neon)">100%</b> // memory_leak: null // threat_level: 0</span>
+  <span>&copy; DÚ_TERMINAL // Počítačové siete</span>
 </footer>
 
 <script>
-  document.querySelectorAll('nav a').forEach(link => {
+  // ═══════════ NAV TABS ═══════════
+  document.querySelectorAll('#main-nav a').forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
       const temaId = link.dataset.tema;
-      document.querySelectorAll('nav a').forEach(l => l.classList.remove('active'));
+      document.querySelectorAll('#main-nav a').forEach(l => l.classList.remove('active'));
       link.classList.add('active');
       document.querySelectorAll('.tema').forEach(t => t.classList.remove('visible'));
-      document.getElementById('tema-' + temaId).classList.add('visible');
+      const target = document.getElementById('tema-' + temaId);
+      if (target) target.classList.add('visible');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
 
+  // ═══════════ ACCORDION ═══════════
   document.querySelectorAll('.uloha-header').forEach(header => {
     header.addEventListener('click', () => {
       header.closest('.uloha').classList.toggle('open');
     });
   });
+
+  // ═══════════ BINARY RAIN ═══════════
+  const rain = document.getElementById('binary-rain');
+  const bits = ['0','1','0','1','{','}','<','>','/','\\','0','1'];
+  function spawnBit() {
+    if (!rain) return;
+    const b = document.createElement('span');
+    b.className = 'bit';
+    b.textContent = bits[Math.floor(Math.random()*bits.length)];
+    b.style.left = Math.random() * 100 + 'vw';
+    b.style.animationDuration = (4 + Math.random()*6) + 's';
+    b.style.fontSize = (9 + Math.random()*5) + 'px';
+    b.style.opacity = 0.3 + Math.random()*0.4;
+    rain.appendChild(b);
+    setTimeout(() => b.remove(), 12000);
+  }
+  for (let i = 0; i < 15; i++) setTimeout(spawnBit, Math.random()*4000);
+  setInterval(spawnBit, 400);
+
+  // ═══════════ UPTIME COUNTER ═══════════
+  const start = Date.now();
+  const uptimeEl = document.getElementById('uptime');
+  function updateUptime() {
+    const sec = Math.floor((Date.now() - start) / 1000);
+    const h = String(Math.floor(sec/3600)).padStart(2,'0');
+    const m = String(Math.floor((sec%3600)/60)).padStart(2,'0');
+    const s = String(sec%60).padStart(2,'0');
+    if (uptimeEl) uptimeEl.textContent = `${h}:${m}:${s}`;
+  }
+  setInterval(updateUptime, 1000);
+
+  // ═══════════ STATS — count uloha modules ═══════════
+  const ulohaCount = document.querySelectorAll('.uloha').length;
+  const statEl = document.getElementById('stat-uloh');
+  if (statEl) statEl.textContent = ulohaCount;
+
+  // ═══════════ DISABLE ACCORDION FOR ALL CLOSED ON LOAD FOR NON-VISIBLE ═══════════
+  // (sections remain open as authored)
 </script>
+
 </body>
 </html>
